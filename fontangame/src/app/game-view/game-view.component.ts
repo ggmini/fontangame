@@ -4,6 +4,7 @@ import { timer } from 'rxjs';
 import { MqttClientService } from '../mqtt-client.service';
 import { bpmList, bpmUnit } from '../data/bpmData';
 import { spo2List, spo2Unit } from '../data/spo2Data';
+import { StorageService } from '../storage.service';
 
 export enum Screen {
     Menu = 'menu',
@@ -58,7 +59,7 @@ export class GameViewComponent {
       this.gamePaused = true;
       this.currentScreen = Screen.Connecting;
     });
-    this.timeRemaining = 60;
+    this.timeRemaining = 10;
     this.MqttClientService.subscribeToData();
     this.subscribeToData();
     timer(1000).subscribe(() => this.timerTick());
@@ -138,7 +139,10 @@ export class GameViewComponent {
   }
 
   SaveResults() {
-    // Save the results to a database or local storage
+    const storage = new StorageService();
+    console.log(this.bpmStore.Serialize());
+    storage.SaveItem(`bpm.${ new Date().toISOString() }`, this.bpmStore.Serialize());
+    storage.SaveItem(`spo2.${ new Date().toISOString() }`, this.spo2Store.Serialize());
   }
 
   QuitToMenu() {
