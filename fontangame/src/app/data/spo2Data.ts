@@ -14,6 +14,10 @@ export class spo2List {
         const total = this.list.reduce((sum, unit) => sum + unit.Spo2, 0);
         return total / this.list.length || 0;
     }
+
+    public Serialize(): string {
+        return JSON.stringify(this.list);
+    }
 }
 
 export class spo2Unit {

@@ -13,6 +13,14 @@ export class bpmList {
         const total = this.list.reduce((sum, unit) => sum + unit.Bpm, 0);
         return total / this.list.length || 0;
     }
+
+    public Serialize(): string {
+        return JSON.stringify(this.list);
+    }
+    
+    public CreateFromData(json: string) : void {
+        this.list = JSON.parse(json);
+    }
 }
 
 export class bpmUnit {
