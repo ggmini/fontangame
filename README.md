@@ -1,0 +1,2 @@
+# Fontan Game
+Fontan Game is a gamified sports application for the web, designed to encourage Young Adults with a Fontan Circulation to do more exercise. Developed as a Bachelors Thesis for the TH Nürnberg. 

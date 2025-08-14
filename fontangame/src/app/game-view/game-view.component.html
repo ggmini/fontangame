@@ -1,0 +1,50 @@
+@switch (currentScreen) {
+    @case ('menu'){
+    <h1>Menu</h1>
+    <button (click)="StartConnecting()">Connect</button>
+    }
+    @case ('game'){
+        <h1>Game</h1>
+        <h2>Score: {{ score }}</h2>
+        <h2> @if (multiplier > 1){Multiplier: {{ multiplier }} | Remaining: {{ bonusTime }}} </h2>
+        <h2>Time Remaining: {{ timeRemaining }} seconds</h2>
+        <p>HR: {{ curBpm }} BPM</p>
+        <p>SpO2: {{ curspo2 }} %</p>
+        <button (click)="PauseGame()">Pause</button>
+    }
+    @case ('connecting'){
+        @if (gameStarted) {
+            <h1>Connection to Pipo Lost</h1>
+        } @else {
+            <h1>Connecting</h1>
+        }
+        <p>MQTT {{ MqttClientService.MqttConnected ? 'Connected' : 'Disconnected' }}</p>
+        <p>Pipo {{ MqttClientService.PipoConnected ? 'Connected' : 'Disconnected' }}</p>
+
+        @if (gameStarted) {
+            <button [disabled]="!MqttClientService.MqttConnected || !MqttClientService.PipoConnected" (click)="ResumeGame()">Resume Game</button>
+        } @else {
+            <button [disabled]="!MqttClientService.MqttConnected || !MqttClientService.PipoConnected" (click)="StartGame()">Start Game</button>
+        }
+    }
+    @case ('pause'){
+        <h1>Game Paused</h1>
+        <p>Score: {{ score }}</p>
+        <p>Time Remaining: {{ timeRemaining }} seconds</p>
+        <p>HR: {{ curBpm }} BPM</p>
+        <p>SpO2: {{ curspo2 }} %</p>
+        <button (click)="ResumeGame()">Resume Game</button>
+        <button (click)="QuitToMenu()">Return to Menu</button>
+    }
+    @case ('gameOver') {
+        @if(didWin) {
+            <h1>Congratulations! You won! 🎉</h1>
+        } @else {
+            <h1>You lost!</h1>
+        }
+        <h2>Final Score: {{ score }}</h2>
+        <h1>Average BPM: {{ bpmStore.GetAvgBpm() }}</h1>
+        <h1>Average SpO2: {{ spo2Store.GetAvgSpo2() }}</h1>
+        <button (click)="ReturnToMenu()">Return to Menu</button>
+    }
+}
