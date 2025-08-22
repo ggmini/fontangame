@@ -13,7 +13,7 @@ export class StorageService {
     return localStorage.getItem(fileName);
   }
 
-  public GetAllItems(): string[] {
+  public GetAllItemNames(): string[] {
     return Object.keys(localStorage);
   }
 

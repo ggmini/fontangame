@@ -1,4 +1,5 @@
 export class bpmList {
+    
     private list: bpmUnit[] = [];
 
     public Add(bpm: bpmUnit): void {
@@ -16,10 +17,6 @@ export class bpmList {
 
     public Serialize(): string {
         return JSON.stringify(this.list);
-    }
-    
-    public CreateFromData(json: string) : void {
-        this.list = JSON.parse(json);
     }
 }
 

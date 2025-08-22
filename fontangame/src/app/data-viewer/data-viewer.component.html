@@ -1,0 +1,41 @@
+@switch (currentScreen) {
+  @case ('fileScreen'){
+      @if (gameDataList.length > 0) {
+        <table>
+          <thead>
+          <tr>
+            <th>Date</th>
+            <th>Score</th>
+            <th>Time</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (data of gameDataList; track $index) {
+            <tr>
+              <td>{{ data.Date }}</td>
+              <td>{{ data.FinalScore }}</td>
+              <td>{{ data.Time }}</td>
+              <td>
+                <button (click)="viewData(data)">View</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+        </table>
+      } @else {
+        <button (click)="PopulateTable()">Load Saves</button>
+        <button (click)="clearSaves()">Clear Saves</button>
+        <p>No game data available. Try Loading Saves</p>
+      }
+  }
+  @case ('dataScreen'){
+      <h1>Data from {{ selectedData?.Date }}</h1>
+
+      <h2>{{ selectedData?.DidWin ? 'Target Score Achieved' : 'Target Score Not Achieved' }}</h2>
+      <h2>{{ selectedData?.FinalScore }} / {{ selectedData?.TargetScore }} Points</h2>
+
+      <h3>Average BPM: {{ selectedData?.BpmList?.GetAvgBpm() }}</h3>
+      <h3>Average SpO2: {{ selectedData?.Spo2List?.GetAvgSpo2() }}%</h3>
+  }
+}

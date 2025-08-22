@@ -18,4 +18,8 @@ export class AppComponent {
   game() {
     window.location.href = '/game-view';
   }
+
+  data() {
+    window.location.href = '/data-viewer';
+  }
 }

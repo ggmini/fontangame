@@ -5,6 +5,7 @@ import { MqttClientService } from '../mqtt-client.service';
 import { bpmList, bpmUnit } from '../data/bpmData';
 import { spo2List, spo2Unit } from '../data/spo2Data';
 import { StorageService } from '../storage.service';
+import { GameData } from '../data/gameData';
 
 export enum Screen {
     Menu = 'menu',
@@ -139,10 +140,18 @@ export class GameViewComponent {
   }
 
   SaveResults() {
+    const data = GameData.CreateFromInput(
+      this.bpmStore,
+      this.spo2Store,
+      this.didWin,
+      this.score,
+      this.totalTime - this.timeRemaining,
+      new Date(),
+      this.targetScore,
+    );
     const storage = new StorageService();
-    console.log(this.bpmStore.Serialize());
-    storage.SaveItem(`bpm.${ new Date().toISOString() }`, this.bpmStore.Serialize());
-    storage.SaveItem(`spo2.${ new Date().toISOString() }`, this.spo2Store.Serialize());
+    console.log(data.Serialize());
+    storage.SaveItem(`gameData_${new Date().toISOString()}`, data.Serialize());
   }
 
   QuitToMenu() {

@@ -25,9 +25,11 @@ export class spo2Unit {
     public get Time(): number {
         return this.time;
     }
+     
     public get Spo2(): number {
         return this.spo2;
     }
+    
     public get Paused(): boolean {
         return this.paused;
     }
