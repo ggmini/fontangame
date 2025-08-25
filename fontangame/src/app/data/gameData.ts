@@ -3,6 +3,11 @@ import { spo2List } from './spo2Data';
 
 export class GameData {
 
+    private fileName: string;
+    public get FileName(): string {
+        return this.fileName;
+    }
+
     private bpmList: bpmList;
     public get BpmList(): bpmList {
         return this.bpmList;
@@ -37,7 +42,7 @@ export class GameData {
         return JSON.stringify(this);
     }
 
-    private constructor(bpmList: bpmList, spo2List: spo2List, didWin: boolean, finalScore: number, time: number, date: Date, targetScore: number) {
+    private constructor(bpmList: bpmList, spo2List: spo2List, didWin: boolean, finalScore: number, time: number, date: Date, targetScore: number, fileName: string) {
         this.bpmList = bpmList;
         this.spo2List = spo2List;
         this.didWin = didWin;
@@ -45,6 +50,7 @@ export class GameData {
         this.time = time;
         this.date = date;
         this.targetScore = targetScore;
+        this.fileName = fileName;
     }
 
     public static CreateFromJson(json: string): GameData {
@@ -56,12 +62,13 @@ export class GameData {
             Object.assign(new Number(), data.finalScore),
             Object.assign(new Number(), data.time),
             Object.assign(new Date(), data.date),
-            Object.assign(new Number(), data.targetScore)
+            Object.assign(new Number(), data.targetScore),
+            data.fileName
         );
     }
 
-    public static CreateFromInput(bpmList: bpmList, spo2List: spo2List, didWin: boolean, finalScore: number, time: number, date: Date, targetScore: number): GameData {
-        return new GameData(bpmList, spo2List, didWin, finalScore, time, date, targetScore);
+    public static CreateFromInput(bpmList: bpmList, spo2List: spo2List, didWin: boolean, finalScore: number, time: number, date: Date, targetScore: number, fileName: string): GameData {
+        return new GameData(bpmList, spo2List, didWin, finalScore, time, date, targetScore, fileName);
     }
 
 }

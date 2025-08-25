@@ -140,18 +140,20 @@ export class GameViewComponent {
   }
 
   SaveResults() {
+    const date = new Date();
     const data = GameData.CreateFromInput(
       this.bpmStore,
       this.spo2Store,
       this.didWin,
       this.score,
       this.totalTime - this.timeRemaining,
-      new Date(),
+      date,
       this.targetScore,
+      `gameData_${date.toISOString()}`
     );
     const storage = new StorageService();
     console.log(data.Serialize());
-    storage.SaveItem(`gameData_${new Date().toISOString()}`, data.Serialize());
+    storage.SaveItem(data.FileName, data.Serialize());
   }
 
   QuitToMenu() {

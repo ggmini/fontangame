@@ -52,11 +52,15 @@ export class DataViewerComponent {
   }
 
   // We need to pass the string, otherwise angular thinks selected data could be undefined
-  deleteData(DataName: string) {
+  deleteData() {
     if (confirm('Are you sure you want to delete this data? This action cannot be undone.')) {
-      this.storage.DeleteItem(DataName);
-      this.PopulateTable();
-      this.goBack();
+      if(this.selectedData != null) {
+        this.storage.DeleteItem(this.selectedData?.FileName);
+        this.PopulateTable();
+        this.goBack();
+      } else {
+        console.error("Selected data is null");
+      }
     }
   }
 
