@@ -37,5 +37,7 @@
 
       <h3>Average BPM: {{ selectedData?.BpmList?.GetAvgBpm() }}</h3>
       <h3>Average SpO2: {{ selectedData?.Spo2List?.GetAvgSpo2() }}%</h3>
+      <button (click)="goBack()">Back</button>
+      <button (click)="deleteData(`gameData_${selectedData?.Date?.toISOString()}`)">Delete</button>
   }
 }
