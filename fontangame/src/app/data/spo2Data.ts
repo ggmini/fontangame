@@ -11,7 +11,11 @@ export class spo2List {
     }
 
     public GetAvgSpo2(): number {
-        const total = this.list.reduce((sum, unit) => sum + unit.Spo2, 0);
+        let total = 0;
+        this.list.forEach(element => {
+            if(element.Spo2 != null)
+                total += element.Spo2;
+        });
         return total / this.list.length || 0;
     }
 
@@ -25,8 +29,8 @@ export class spo2Unit {
     public get Time(): number {
         return this.time;
     }
-     
-    public get Spo2(): number {
+
+    public get Spo2(): number | null {
         return this.spo2;
     }
     
@@ -34,5 +38,5 @@ export class spo2Unit {
         return this.paused;
     }
 
-    constructor(private time: number, private spo2: number, private paused: boolean) {}
+    constructor(private time: number, private spo2: number | null, private paused: boolean) {}
 }

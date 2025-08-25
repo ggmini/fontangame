@@ -9,6 +9,7 @@ publishing = False
 spO2 = 0
 bpm = 0
 client: mqtt.Client = None
+dataToPublish = False
 
 def calculate_spO2(red_max, red_min, ir_max, ir_min):
     """Calculates the Oxygen Saturation from current sensor values
@@ -39,9 +40,11 @@ def calculate_spO2(red_max, red_min, ir_max, ir_min):
 
 def mqttThread():
     while publishing:
-        mqtt.publish(client, "fontangame/spo2", spO2)
-        mqtt.publish(client, "fontangame/bpm", bpm)
-        time.sleep(1)
+        if dataToPublish:
+            mqtt.publish(client, "fontangame/spo2", spO2)
+            mqtt.publish(client, "fontangame/bpm", bpm)
+            time.sleep(1)
+            dataToPublish = False # Reset the flag after publishing
 
 def main():
     #Set up the Screen
@@ -190,6 +193,9 @@ def main():
                 oled.text(bpmScreen, 0, 20)
                 oled.text(spO2Screen, 0, 40)
                 oled.show()
+                
+                dataToPublish = True # We have new BPM/SpO2 data to publish
+                
             #if were not looking for beat check if we should be looking for beat
             elif avgChng > 0.5 and not lookpeak:
                 lookpeak = True

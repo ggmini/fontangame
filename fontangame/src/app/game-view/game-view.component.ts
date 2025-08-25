@@ -33,8 +33,8 @@ export class GameViewComponent {
   timeRemaining = 0;
   gameStarted = false;
   gamePaused = false;
-  curBpm = 0; // current bpm
-  curspo2 = 0.0; // current spo2
+  curBpm: number | null = null; // current bpm
+  curspo2: number | null = null; // current spo2
   bpmStore: bpmList = new bpmList();
   spo2Store: spo2List = new spo2List();
   didWin = false;
@@ -42,6 +42,8 @@ export class GameViewComponent {
   bonusTime = 0; // Bonus time for random events
   multiplier = 1; // Multiplier for score calculation
   bonusActive = false; // Flag to indicate if a bonus is active
+
+  timeSinceLastNotNull = 0; //used to track lack of updates from pipo in order to warn if the device has come off
 
   constructor() {
     this.MqttClientService = inject(MqttClientService)
@@ -78,29 +80,40 @@ export class GameViewComponent {
   }
 
   subscribeToData() {
-    this.MqttClientService.bpmSubscription.subscribe((bpm) =>
-      this.handleBpmUpdate(bpm)
-    );
-    this.MqttClientService.spo2Subscription.subscribe((spo2) => 
-      this.handleSpo2Update(spo2)
-    );
+    this.MqttClientService.bpmSubscription.subscribe((bpm) => {
+      if(bpm === -1) //were using -1 to describe no data
+        this.curBpm = null;
+      else this.curBpm = bpm;
+    });
+    this.MqttClientService.spo2Subscription.subscribe((spo2) => {
+      if(spo2 === -1)
+        this.curspo2 = null;
+      else this.curspo2 = spo2;
+    });
   }
 
-  handleBpmUpdate(bpm: number) {
-    this.curBpm = bpm;
-    if (this.gameStarted && !this.gamePaused)
-      this.score += (bpm * this.multiplier); //Example scoring logic, TODO deffo needs to be improved
-    this.bpmStore.Add(new bpmUnit(this.totalTime - this.timeRemaining, bpm, this.gamePaused));
-  }
-
-  handleSpo2Update(spo2: number) {
-    this.curspo2 = spo2;
-    this.spo2Store.Add(new spo2Unit(this.totalTime - this.timeRemaining, spo2, this.gamePaused));
+  processData() {
+    if(!this.gameStarted) return; //if the game isn't started... what are we doing here?
+    if(!this.gamePaused) { //if the game isn't paused add to the score, also check to make sure the BPM isn't empty first
+       if(this.curBpm != null) {
+        this.timeSinceLastNotNull = 0; //reset the counter
+        const pointsToAdd = this.curBpm - 100;
+        if(pointsToAdd > 0) { //make sure we're not subtracting points
+          this.score += (pointsToAdd * this.multiplier); //Example scoring logic, TODO deffo needs to be improved
+        }
+      } else {
+        this.timeSinceLastNotNull++;
+      }
+    }
+    this.bpmStore.Add(new bpmUnit(this.totalTime - this.timeRemaining, this.curBpm, this.gamePaused));
+    this.spo2Store.Add(new spo2Unit(this.totalTime - this.timeRemaining, this.curspo2, this.gamePaused));
+    
   }
 
   timerTick() {
     if (this.gameStarted && !this.gamePaused) {
       this.timeRemaining--;
+      this.processData();
       if (!this.bonusActive)
         this.checkForRandomEvent();
       else {

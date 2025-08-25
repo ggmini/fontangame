@@ -11,7 +11,11 @@ export class bpmList {
     }
 
     public GetAvgBpm(): number {
-        const total = this.list.reduce((sum, unit) => sum + unit.Bpm, 0);
+        let total = 0;
+        this.list.forEach(element => {
+            if(element.Bpm != null)
+                total += element.Bpm;
+        });
         return total / this.list.length || 0;
     }
 
@@ -26,7 +30,7 @@ export class bpmUnit {
         return this.time;
     }
 
-    public get Bpm(): number {
+    public get Bpm(): number | null {
         return this.bpm;
     }
 
@@ -34,5 +38,5 @@ export class bpmUnit {
         return this.paused;
     }
 
-    constructor(private time: number, private bpm: number, private paused: boolean) {}
+    constructor(private time: number, private bpm: number | null, private paused: boolean) {}
 }

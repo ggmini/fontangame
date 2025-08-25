@@ -10,6 +10,11 @@
         <h2>Time Remaining: {{ timeRemaining }} seconds</h2>
         <p>HR: {{ curBpm }} BPM</p>
         <p>SpO2: {{ curspo2 }} %</p>
+
+        @if (timeSinceLastNotNull > 5) {
+          <h2 style="color: red">Warning: No updates from Pipo in the last {{ timeSinceLastNotNull }} seconds!</h2>
+        }
+
         <button (click)="PauseGame()">Pause</button>
     }
     @case ('connecting'){
