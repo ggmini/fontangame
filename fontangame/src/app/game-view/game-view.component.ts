@@ -149,7 +149,22 @@ export class GameViewComponent {
 
   ReturnToMenu() {
     this.SaveResults();
-    this.QuitToMenu();
+    this.ResetVariables();
+    this.QuitToMenu();  
+  }
+
+  ResetVariables() {
+    this.score = 0;
+    this.totalTime = 0;
+    this.timeRemaining = 0;
+    this.gameStarted = false;
+    this.bpmStore = new bpmList();
+    this.spo2Store = new spo2List();
+    this.didWin = false;
+
+    this.bonusTime = 0; // Bonus time for random events
+    this.multiplier = 1; // Multiplier for score calculation
+    this.bonusActive = false; // Flag to indicate if a bonus is active
   }
 
   SaveResults() {

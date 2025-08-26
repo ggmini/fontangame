@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { StorageService } from '../storage.service';
 import { GameData } from '../data/gameData';
 
+import { Chart } from 'chart.js/auto';
+
 export enum Screen {
   fileScreen = 'fileScreen',
   dataScreen = 'dataScreen'
@@ -37,6 +39,27 @@ export class DataViewerComponent {
   viewData(data: GameData) {
     this.selectedData = data;
     this.currentScreen = Screen.dataScreen;
+
+    const ctx = document.getElementById('myChart') as HTMLCanvasElement;
+
+    new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+      datasets: [{
+        label: '# of Votes',
+        data: [12, 19, 3, 5, 2, 3],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
   }
 
   clearSaves() {
