@@ -1,9 +1,14 @@
+<button (click)="createTestData()">Create Test Data</button>
+
 @switch (currentScreen) {
   @case ('fileScreen'){
       @if (gameDataList.length > 0) {
+        <button (click)="PopulateTable()">Reload Saves</button>
+        <button (click)="clearSaves()">Clear Saves</button>
         <table>
           <thead>
           <tr>
+            <th>Filename</th>
             <th>Date</th>
             <th>Score</th>
             <th>Time</th>
@@ -13,6 +18,7 @@
         <tbody>
           @for (data of gameDataList; track $index) {
             <tr>
+              <td>{{ data.FileName }}</td>
               <td>{{ data.Date }}</td>
               <td>{{ data.FinalScore }}</td>
               <td>{{ data.Time }}</td>
@@ -25,7 +31,6 @@
         </table>
       } @else {
         <button (click)="PopulateTable()">Load Saves</button>
-        <button (click)="clearSaves()">Clear Saves</button>
         <p>No game data available. Try Loading Saves</p>
       }
   }
@@ -36,9 +41,12 @@
       <h2>{{ selectedData?.FinalScore }} / {{ selectedData?.TargetScore }} Points</h2>
 
       <h3>Average BPM: {{ selectedData?.BpmList?.GetAvgBpm() }}</h3>
-      <h3>Average SpO2: {{ selectedData?.Spo2List?.GetAvgSpo2() }}%</h3>
+      @if(selectedData != null) {
+      <h3>Average SpO2: {{ Math.round(selectedData.Spo2List.GetAvgSpo2() * 10) / 10 }}%</h3>
+      }
       <button (click)="goBack()">Back</button>
       <button (click)="deleteData()">Delete</button>
   }
 }
-<canvas id="myChart" hidden="currentScreen !== 'dataScreen'"></canvas>
+<canvas id="bpmChart" hidden="currentScreen !== 'dataScreen'"></canvas>
+<canvas id="spo2Chart" hidden="currentScreen !== 'dataScreen'"></canvas>

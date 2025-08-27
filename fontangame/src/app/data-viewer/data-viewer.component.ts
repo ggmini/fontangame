@@ -26,6 +26,11 @@ export class DataViewerComponent {
 
   selectedData: GameData | null = null;
 
+  bpmChart: any = null;
+  spo2Chart: any = null;
+
+  Math = Math;
+
   //Can't be called from constructor (it still works but throws a reference error in the console ¯\_(ツ)_/¯)
   PopulateTable() {
     const dataNames = this.storage.GetAllItemNames();
@@ -40,26 +45,31 @@ export class DataViewerComponent {
     this.selectedData = data;
     this.currentScreen = Screen.dataScreen;
 
-    const ctx = document.getElementById('myChart') as HTMLCanvasElement;
-
-    new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-      datasets: [{
-        label: '# of Votes',
-        data: [12, 19, 3, 5, 2, 3],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
+    const bpmCtx = document.getElementById('bpmChart') as HTMLCanvasElement;
+    this.bpmChart = new Chart(bpmCtx, {
+      type: 'line',
+      data: {
+        labels: [1, 2, 3],
+        datasets: [{
+          label: 'BPM',
+          data: this.selectedData?.BpmList.GetAll().map(unit => unit.Bpm) || [],
+          borderWidth: 1
+        }]
       }
-    }
-  });
+    });
+
+    const spo2Ctx = document.getElementById('spo2Chart') as HTMLCanvasElement;
+    this.spo2Chart = new Chart(spo2Ctx, {
+      type: 'line',
+      data: {
+        labels: [1, 2, 3],
+        datasets: [{
+          label: 'SpO2',
+          data: this.selectedData?.Spo2List.GetAll().map(unit => unit.Spo2) || [],
+          borderWidth: 1
+        }]
+      }
+    });
   }
 
   clearSaves() {
@@ -72,6 +82,8 @@ export class DataViewerComponent {
   goBack() {
     this.currentScreen = Screen.fileScreen;
     this.selectedData = null;
+
+    this.bpmChart?.destroy();
   }
 
   // We need to pass the string, otherwise angular thinks selected data could be undefined
@@ -85,6 +97,15 @@ export class DataViewerComponent {
         console.error("Selected data is null");
       }
     }
+  }
+
+
+  createTestData() {
+    const data = GameData.CreateTestData();
+    const json = data.Serialize()
+    console.log(json)
+    this.storage.SaveItem(data.FileName, json);
+    this.PopulateTable();
   }
 
 }
