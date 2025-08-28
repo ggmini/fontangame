@@ -41,4 +41,6 @@ How to Install:
 - Uses Code from [dkallen78's project](https://github.com/dkallen78/PulseOximeter/blob/main/pulse-oximeter.py)
 
 Developed with Thonny w/ Python 3.8.10 and a Raspberry Pi Pico 2W w/ RP2350 and MicroPython 1.25.0
-Housing designed with Autodesk Inventor and Blender and printed on a Creality Ender 3S w/ Klipper
+MAX30102 Housing designed with Autodesk Inventor and Blender
+Combined PiPO2 and SSD1306 Housing can be found [here](https://makerworld.com/en/models/514436-pi-pico-case-with-ssd1306-oled-slo), the loops for the velcro were added by me
+Housings printed on a Creality Ender 3S w/ Klipper
