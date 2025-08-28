@@ -41,4 +41,4 @@ How to Install:
 - Uses Code from [dkallen78's project](https://github.com/dkallen78/PulseOximeter/blob/main/pulse-oximeter.py)
 
 Developed with Thonny w/ Python 3.8.10 and a Raspberry Pi Pico 2W w/ RP2350 and MicroPython 1.25.0
-Housing printed on a Creality Ender 3S w/ Klipper
+Housing designed with Autodesk Inventor and Blender and printed on a Creality Ender 3S w/ Klipper
