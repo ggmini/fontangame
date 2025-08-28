@@ -1,7 +1,16 @@
 @switch (currentScreen) {
     @case ('menu'){
     <h1>Menu</h1>
-    <button (click)="StartConnecting()">Connect</button>
+    <mat-form-field>
+      <mat-label>Difficulty</mat-label>
+      <mat-select [(value)]="targetScore" required>
+        <mat-option value="100">Easy</mat-option>
+        <mat-option value="200">Medium</mat-option>
+        <mat-option value="300">Hard</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <p>Target Score: {{ targetScore }}</p>
+    <button mat-raised-button (click)="StartConnecting()">Connect</button>
     }
     @case ('game'){
         <h1>Game</h1>
@@ -11,11 +20,11 @@
         <p>HR: {{ curBpm }} BPM</p>
         <p>SpO2: {{ curspo2 }} %</p>
 
-        @if (timeSinceLastNotNull > 5) {
-          <h2 style="color: red">Warning: No updates from Pipo in the last {{ timeSinceLastNotNull }} seconds!</h2>
+        @if (timeSinceLastUpdate > 3) {
+          <h2 style="color: red">Warning: No updates from Pipo in the last {{ timeSinceLastUpdate }} seconds!</h2>
         }
 
-        <button (click)="PauseGame()">Pause</button>
+        <button mat-raised-button (click)="PauseGame()">Pause</button>
     }
     @case ('connecting'){
         @if (gameStarted) {
@@ -27,9 +36,10 @@
         <p>Pipo {{ MqttClientService.PipoConnected ? 'Connected' : 'Disconnected' }}</p>
 
         @if (gameStarted) {
-            <button [disabled]="!MqttClientService.MqttConnected || !MqttClientService.PipoConnected" (click)="ResumeGame()">Resume Game</button>
+            <button mat-raised-button [disabled]="!MqttClientService.MqttConnected || !MqttClientService.PipoConnected" (click)="ResumeGame()">Resume Game</button>
         } @else {
-            <button [disabled]="!MqttClientService.MqttConnected || !MqttClientService.PipoConnected" (click)="StartGame()">Start Game</button>
+            <button mat-raised-button [disabled]="!MqttClientService.MqttConnected || !MqttClientService.PipoConnected" (click)="StartGame()">Start Game</button>
+            <button mat-raised-button (click)="BackFromConnecting()">Back</button>
         }
     }
     @case ('pause'){
@@ -38,8 +48,8 @@
         <p>Time Remaining: {{ timeRemaining }} seconds</p>
         <p>HR: {{ curBpm }} BPM</p>
         <p>SpO2: {{ curspo2 }} %</p>
-        <button (click)="ResumeGame()">Resume Game</button>
-        <button (click)="QuitToMenu()">Return to Menu</button>
+        <button mat-raised-button (click)="ResumeGame()">Resume Game</button>
+        <button mat-raised-button (click)="QuitToMenu()">Return to Menu</button>
     }
     @case ('gameOver') {
         @if(didWin) {
@@ -50,6 +60,6 @@
         <h2>Final Score: {{ score }}</h2>
         <h1>Average BPM: {{ bpmStore.GetAvgBpm() }}</h1>
         <h1>Average SpO2: {{ spo2Store.GetAvgSpo2() }}</h1>
-        <button (click)="ReturnToMenu()">Return to Menu</button>
+        <button mat-raised-button (click)="ReturnToMenu()">Return to Menu</button>
     }
 }

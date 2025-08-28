@@ -1,10 +1,10 @@
-<button (click)="createTestData()">Create Test Data</button>
+<button mat-raised-button (click)="createTestData()">Create Test Data</button>
 
 @switch (currentScreen) {
   @case ('fileScreen'){
       @if (gameDataList.length > 0) {
-        <button (click)="PopulateTable()">Reload Saves</button>
-        <button (click)="clearSaves()">Clear Saves</button>
+        <button mat-raised-button (click)="PopulateTable()">Reload Saves</button>
+        <button mat-raised-button (click)="clearSaves()">Clear Saves</button>
         <table>
           <thead>
           <tr>
@@ -23,14 +23,14 @@
               <td>{{ data.FinalScore }}</td>
               <td>{{ data.Time }}</td>
               <td>
-                <button (click)="viewData(data)">View</button>
+                <button mat-raised-button (click)="viewData(data)">View</button>
               </td>
             </tr>
           }
         </tbody>
         </table>
       } @else {
-        <button (click)="PopulateTable()">Load Saves</button>
+        <button mat-raised-button (click)="PopulateTable()">Load Saves</button>
         <p>No game data available. Try Loading Saves</p>
       }
   }
@@ -41,11 +41,11 @@
       <h2>{{ selectedData?.FinalScore }} / {{ selectedData?.TargetScore }} Points</h2>
 
       <h3>Average BPM: {{ selectedData?.BpmList?.GetAvgBpm() }}</h3>
-      @if(selectedData != null) {
+      @if(selectedData !== null) {
       <h3>Average SpO2: {{ Math.round(selectedData.Spo2List.GetAvgSpo2() * 10) / 10 }}%</h3>
       }
-      <button (click)="goBack()">Back</button>
-      <button (click)="deleteData()">Delete</button>
+      <button mat-raised-button (click)="goBack()">Back</button>
+      <button mat-raised-button (click)="deleteData()">Delete</button>
   }
 }
 <canvas id="bpmChart" hidden="currentScreen !== 'dataScreen'"></canvas>

@@ -1,15 +1,9 @@
-from threading import Thread
+import _thread
 from machine import Pin, SoftI2C
 from ssd1306 import SSD1306_I2C
 import time, math
 from max30102 import MAX30102, MAX30105_PULSE_AMP_MEDIUM
 import wifi, mqtt, sys
-
-publishing = False
-spO2 = 0
-bpm = 0
-client: mqtt.Client = None
-dataToPublish = False
 
 def calculate_spO2(red_max, red_min, ir_max, ir_min):
     """Calculates the Oxygen Saturation from current sensor values
@@ -30,23 +24,16 @@ def calculate_spO2(red_max, red_min, ir_max, ir_min):
     ir_AC = ir_max - ir_min
     
     R_val = (red_AC / red_DC) / (ir_AC / ir_DC)
-    print ("R:", R_val) #TODO: remove console logs later
+    #print ("R:", R_val) #TODO: remove console logs later
     spO2a = R_val * 49.48
     spO2b = 116.6 - (34.5 * R_val)
     spO2c = 110 - (25 * R_val)
-    print(spO2a, spO2b, spO2c) #TODO: remove console logs later
+    #print(spO2a, spO2b, spO2c) #TODO: remove console logs later
     spO2 = (1.5958422 * (R_val * R_val)) + (-34.6596622 * R_val) + 112.6898759
     return spO2
 
-def mqttThread():
-    while publishing:
-        if dataToPublish:
-            mqtt.publish(client, "fontangame/spo2", spO2)
-            mqtt.publish(client, "fontangame/bpm", bpm)
-            time.sleep(1)
-            dataToPublish = False # Reset the flag after publishing
-
 def main():
+    global dataToPublish
     #Set up the Screen
     width=128 
     height=64    
@@ -128,10 +115,6 @@ def main():
     irLow = 1000000
     redHigh = 0
     redLow = 1000000
-    
-    #start the mqtt publishing
-    publishing = True
-    Thread(target=mqttThread).start()
 
     while True:
         #check must be polled continuously to check if there are new readings in the fifo queue. if readings are available they will be put into storage 
@@ -145,7 +128,7 @@ def main():
             ir_reading = sensor.pop_ir_from_storage()
             
             #TODO: remove console logs later
-            print("red reading", red_reading, "ir reading", ir_reading)
+            #print("red reading", red_reading, "ir reading", ir_reading)
             
             #calc change in ir value between last 2 reads and add it to list and calc average of last 5
             prev = curr
@@ -187,7 +170,7 @@ def main():
                 #output to display
                 oled.fill(0)
                 bpm = str(round(bpm))
-                spO2 = (str(spO2local, 2))
+                spO2 = str(round(spO2local, 2))
                 bpmScreen = "BPM: " + bpm
                 spO2Screen = "SpO2: " + spO2 + "%"
                 oled.text(bpmScreen, 0, 20)
@@ -195,6 +178,9 @@ def main():
                 oled.show()
                 
                 dataToPublish = True # We have new BPM/SpO2 data to publish
+                
+                mqtt.publish(client, "fontangame/spo2", spO2)
+                mqtt.publish(client, "fontangame/bpm", bpm)
                 
             #if were not looking for beat check if we should be looking for beat
             elif avgChng > 0.5 and not lookpeak:
@@ -211,8 +197,8 @@ def main():
                 redLow = red_reading
         
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        if (e.arg != "I2C device ID not corresponding to MAX30102 or MAX30105." and e.arg != "Sensor not found"):
-            sys.exit() #If it's not a Sensor Error reboot (we want the user to see error related to the sensor on the screen)
+    #try:
+    main()
+    #except Exception as e:
+    #    if (e.arg != "I2C device ID not corresponding to MAX30102 or MAX30105." and e.arg != "Sensor not found"):
+    #        sys.exit() #If it's not a Sensor Error reboot (we want the user to see error related to the sensor on the screen)

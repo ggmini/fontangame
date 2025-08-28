@@ -7,6 +7,12 @@ import { spo2List, spo2Unit } from '../data/spo2Data';
 import { StorageService } from '../storage.service';
 import { GameData } from '../data/gameData';
 
+import { FormsModule } from '@angular/forms';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import { MatButton } from "@angular/material/button";
+
 export enum Screen {
     Menu = 'menu',
     Game = 'game',
@@ -18,7 +24,7 @@ export enum Screen {
 @Component({
   selector: 'app-game-view',
   standalone: true,
-  imports: [],
+  imports: [MatFormFieldModule, MatSelectModule, MatInputModule, FormsModule, MatButton],
   templateUrl: './game-view.component.html',
   styleUrl: './game-view.component.sass'
 })
@@ -28,13 +34,13 @@ export class GameViewComponent {
   MqttClientService: MqttClientService;
 
   score = 0;
-  targetScore = 1000; // Example target score, can be adjusted
+  targetScore = 100; // Example target score, can be adjusted
   totalTime = 0;
   timeRemaining = 0;
   gameStarted = false;
   gamePaused = false;
-  curBpm: number | null = null; // current bpm
-  curspo2: number | null = null; // current spo2
+  curBpm = 0; // current bpm
+  curspo2 = 0; // current spo2
   bpmStore: bpmList = new bpmList();
   spo2Store: spo2List = new spo2List();
   didWin = false;
@@ -43,7 +49,7 @@ export class GameViewComponent {
   multiplier = 1; // Multiplier for score calculation
   bonusActive = false; // Flag to indicate if a bonus is active
 
-  timeSinceLastNotNull = 0; //used to track lack of updates from pipo in order to warn if the device has come off
+  timeSinceLastUpdate = 0; //used to track lack of updates from pipo in order to warn if the device has come off
 
   constructor() {
     this.MqttClientService = inject(MqttClientService)
@@ -62,9 +68,11 @@ export class GameViewComponent {
       this.gamePaused = true;
       this.currentScreen = Screen.Connecting;
     });
-    this.timeRemaining = 10;
     this.MqttClientService.subscribeToData();
     this.subscribeToData();
+    this.totalTime = 10;
+    this.timeRemaining = this.totalTime;
+    this.timeSinceLastUpdate = 0;
     timer(1000).subscribe(() => this.timerTick());
   }
 
@@ -81,38 +89,37 @@ export class GameViewComponent {
 
   subscribeToData() {
     this.MqttClientService.bpmSubscription.subscribe((bpm) => {
-      if(bpm === -1) //were using -1 to describe no data
-        this.curBpm = null;
-      else this.curBpm = bpm;
+      this.curBpm = bpm;
+      this.timeSinceLastUpdate = 0;
     });
     this.MqttClientService.spo2Subscription.subscribe((spo2) => {
-      if(spo2 === -1)
-        this.curspo2 = null;
-      else this.curspo2 = spo2;
+      this.curspo2 = spo2;
     });
   }
 
   processData() {
     if(!this.gameStarted) return; //if the game isn't started... what are we doing here?
     if(!this.gamePaused) { //if the game isn't paused add to the score, also check to make sure the BPM isn't empty first
-       if(this.curBpm != null) {
-        this.timeSinceLastNotNull = 0; //reset the counter
+       if(this.timeSinceLastUpdate < 3) {
         const pointsToAdd = this.curBpm - 100;
         if(pointsToAdd > 0) { //make sure we're not subtracting points
           this.score += (pointsToAdd * this.multiplier); //Example scoring logic, TODO deffo needs to be improved
         }
-      } else {
-        this.timeSinceLastNotNull++;
       }
     }
-    this.bpmStore.Add(new bpmUnit(this.totalTime - this.timeRemaining, this.curBpm, this.gamePaused));
-    this.spo2Store.Add(new spo2Unit(this.totalTime - this.timeRemaining, this.curspo2, this.gamePaused));
-    
+    if (this.timeSinceLastUpdate < 3) {
+      this.bpmStore.Add(new bpmUnit(this.totalTime - this.timeRemaining, this.curBpm, this.gamePaused));
+      this.spo2Store.Add(new spo2Unit(this.totalTime - this.timeRemaining, this.curspo2, this.gamePaused));
+    } else {
+      this.bpmStore.Add(new bpmUnit(this.totalTime - this.timeRemaining, null, this.gamePaused));
+      this.spo2Store.Add(new spo2Unit(this.totalTime - this.timeRemaining, null, this.gamePaused));
+    }
   }
 
   timerTick() {
     if (this.gameStarted && !this.gamePaused) {
       this.timeRemaining--;
+      this.timeSinceLastUpdate++;
       this.processData();
       if (!this.bonusActive)
         this.checkForRandomEvent();
@@ -122,7 +129,7 @@ export class GameViewComponent {
           this.multiplier = 1;
         } else this.bonusTime--;
       }
-      if (this.timeRemaining <= 0) {
+      if (this.timeRemaining === 0) {
         this.endGame();
         return;
       }
@@ -149,7 +156,7 @@ export class GameViewComponent {
 
   ReturnToMenu() {
     this.SaveResults();
-    this.ResetVariables();
+    window.location.reload();
     this.QuitToMenu();  
   }
 
@@ -191,5 +198,9 @@ export class GameViewComponent {
     this.timeRemaining = 0;
     this.targetScore = 0;
     this.didWin = false;
+  }
+
+  BackFromConnecting() {
+    this.currentScreen = Screen.Menu;
   }
 }

@@ -3,6 +3,7 @@ import { StorageService } from '../storage.service';
 import { GameData } from '../data/gameData';
 
 import { Chart } from 'chart.js/auto';
+import { MatButtonModule } from '@angular/material/button';
 
 export enum Screen {
   fileScreen = 'fileScreen',
@@ -12,7 +13,7 @@ export enum Screen {
 @Component({
   selector: 'app-data-viewer',
   standalone: true,
-  imports: [],
+  imports: [MatButtonModule],
   templateUrl: './data-viewer.component.html',
   styleUrl: './data-viewer.component.sass'
 })
@@ -84,6 +85,7 @@ export class DataViewerComponent {
     this.selectedData = null;
 
     this.bpmChart?.destroy();
+    this.spo2Chart?.destroy();
   }
 
   // We need to pass the string, otherwise angular thinks selected data could be undefined
