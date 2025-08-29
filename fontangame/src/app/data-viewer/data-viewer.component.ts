@@ -25,6 +25,10 @@ export class DataViewerComponent {
 
   Math = Math;
 
+  constructor() {
+    this.PopulateTable();
+  }
+
   PopulateTable() {
     const dataNames = this.storage.GetAllItemNames();
 

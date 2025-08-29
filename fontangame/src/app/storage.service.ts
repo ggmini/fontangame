@@ -1,28 +1,35 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Inject, Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
 
+  private localStorage: Storage | undefined;
+
+  constructor(@Inject(DOCUMENT) private document: Document) { 
+    this.localStorage = this.document.defaultView?.localStorage;
+  }
+
   public SaveItem(fileName: string, content: string) : void {
-    localStorage.setItem(fileName, content);
+    this.localStorage?.setItem(fileName, content);
   }
 
   public ReadItem(fileName: string): string | null {
-    return localStorage.getItem(fileName);
+    return this.localStorage?.getItem(fileName) || null;
   }
 
   public GetAllItemNames(): string[] {
-    return Object.keys(localStorage);
+    return Object.keys(this.localStorage || {});
   }
 
   public DeleteItem(fileName: string): void {
-    localStorage.removeItem(fileName);
+    this.localStorage?.removeItem(fileName);
   }
 
   public ClearStorage(): void {
-    localStorage.clear();
+    this.localStorage?.clear();
   }
   
 }
