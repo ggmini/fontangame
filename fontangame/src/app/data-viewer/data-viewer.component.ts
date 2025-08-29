@@ -17,7 +17,7 @@ import { timer } from 'rxjs';
 })
 export class DataViewerComponent {
 
-  storage: StorageService;
+  storage: StorageService = inject(StorageService);
 
   gameDataList: GameData[] = [];
 
@@ -25,11 +25,6 @@ export class DataViewerComponent {
 
   Math = Math;
 
-  constructor() {
-    this.storage = inject(StorageService);
-    this.storage.serviceInit.subscribe(() => this.PopulateTable()); //Can't be called directly from constructor (it still works but throws a reference error in the console ¯\_(ツ)_/¯)
-  }
-  
   PopulateTable() {
     const dataNames = this.storage.GetAllItemNames();
 

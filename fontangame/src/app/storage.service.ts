@@ -1,16 +1,9 @@
-import { Injectable, Output, EventEmitter } from '@angular/core';
-import { timer } from 'rxjs/internal/observable/timer';
+import { Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
-
-  @Output() serviceInit = new EventEmitter<void>();
-
-  constructor() {
-    timer(10).subscribe(() => this.serviceInit.emit());
-  }
 
   public SaveItem(fileName: string, content: string) : void {
     localStorage.setItem(fileName, content);

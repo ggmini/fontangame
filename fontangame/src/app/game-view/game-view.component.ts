@@ -186,7 +186,7 @@ export class GameViewComponent {
       this.targetScore,
       `gameData_${date.toISOString()}`
     );
-    const storage = new StorageService();
+    const storage = inject(StorageService);
     console.log(data.Serialize());
     storage.SaveItem(data.FileName, data.Serialize());
   }
