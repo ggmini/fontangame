@@ -1,5 +1,4 @@
-import { Injectable, output } from '@angular/core';
-import { inject } from '@angular/core';
+import { Injectable, Output, EventEmitter, inject } from '@angular/core';
 import { MqttService } from 'ngx-mqtt';
 
 @Injectable({
@@ -59,10 +58,10 @@ export class MqttClientService {
     });
   }
 
-  pipoDidConnect = output<void>();
-  pipoDidDisconnect = output<void>();
-  bpmSubscription = output<number>();
-  spo2Subscription = output<number>();
+  @Output() pipoDidConnect = new EventEmitter<void>();
+  @Output() pipoDidDisconnect = new EventEmitter<void>();
+  @Output() bpmSubscription = new EventEmitter<number>();
+  @Output() spo2Subscription = new EventEmitter<number>();
 
   disconnect() {
     try {

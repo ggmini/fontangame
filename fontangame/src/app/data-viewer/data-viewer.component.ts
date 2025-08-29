@@ -4,35 +4,32 @@ import { GameData } from '../data/gameData';
 
 import { Chart } from 'chart.js/auto';
 import { MatButtonModule } from '@angular/material/button';
+import { MatExpansionModule } from '@angular/material/expansion';
 
-export enum Screen {
-  fileScreen = 'fileScreen',
-  dataScreen = 'dataScreen'
-}
+import { timer } from 'rxjs';
 
 @Component({
   selector: 'app-data-viewer',
   standalone: true,
-  imports: [MatButtonModule],
+  imports: [MatButtonModule, MatExpansionModule],
   templateUrl: './data-viewer.component.html',
-  styleUrl: './data-viewer.component.sass'
+  styleUrl: './data-viewer.component.scss'
 })
 export class DataViewerComponent {
 
-  currentScreen: Screen = Screen.fileScreen;
-
-  storage = inject(StorageService);
+  storage: StorageService;
 
   gameDataList: GameData[] = [];
 
   selectedData: GameData | null = null;
 
-  bpmChart: any = null;
-  spo2Chart: any = null;
-
   Math = Math;
 
-  //Can't be called from constructor (it still works but throws a reference error in the console ¯\_(ツ)_/¯)
+  constructor() {
+    this.storage = inject(StorageService);
+    this.storage.serviceInit.subscribe(() => this.PopulateTable()); //Can't be called directly from constructor (it still works but throws a reference error in the console ¯\_(ツ)_/¯)
+  }
+  
   PopulateTable() {
     const dataNames = this.storage.GetAllItemNames();
 
@@ -40,37 +37,41 @@ export class DataViewerComponent {
       const json = this.storage.ReadItem(name);
       return json ? GameData.CreateFromJson(json) : null;
     }).filter((data): data is GameData => data !== null);
+
+    timer(10).subscribe(() => this.ConstructCharts());
   }
 
-  viewData(data: GameData) {
-    this.selectedData = data;
-    this.currentScreen = Screen.dataScreen;
+  ConstructCharts(){
+    //Construct the Charts
+    for(let i = 0; i < this.gameDataList.length; i++) {
+      const data = this.gameDataList[i];
+      const bpmCtx = document.getElementById(`bpmChart${i}`) as HTMLCanvasElement;
+      const spo2Ctx = document.getElementById(`spo2Chart${i}`) as HTMLCanvasElement;
 
-    const bpmCtx = document.getElementById('bpmChart') as HTMLCanvasElement;
-    this.bpmChart = new Chart(bpmCtx, {
-      type: 'line',
-      data: {
-        labels: [1, 2, 3],
-        datasets: [{
-          label: 'BPM',
-          data: this.selectedData?.BpmList.GetAll().map(unit => unit.Bpm) || [],
-          borderWidth: 1
-        }]
-      }
-    });
+      new Chart(bpmCtx, {
+        type: 'line',
+        data: {
+          labels: [1, 2, 3],
+          datasets: [{
+            label: 'BPM',
+            data: data.BpmList.GetAll().map(unit => unit.Bpm) || [],
+            borderWidth: 1
+          }]
+        }
+      });
 
-    const spo2Ctx = document.getElementById('spo2Chart') as HTMLCanvasElement;
-    this.spo2Chart = new Chart(spo2Ctx, {
-      type: 'line',
-      data: {
-        labels: [1, 2, 3],
-        datasets: [{
-          label: 'SpO2',
-          data: this.selectedData?.Spo2List.GetAll().map(unit => unit.Spo2) || [],
-          borderWidth: 1
-        }]
-      }
-    });
+      new Chart(spo2Ctx, {
+        type: 'line',
+        data: {
+          labels: [1, 2, 3],
+          datasets: [{
+            label: 'SpO2',
+            data: data.Spo2List.GetAll().map(unit => unit.Spo2) || [],
+            borderWidth: 1
+          }]
+        }
+      });
+    }
   }
 
   clearSaves() {
@@ -80,24 +81,11 @@ export class DataViewerComponent {
     }
   }
 
-  goBack() {
-    this.currentScreen = Screen.fileScreen;
-    this.selectedData = null;
-
-    this.bpmChart?.destroy();
-    this.spo2Chart?.destroy();
-  }
-
   // We need to pass the string, otherwise angular thinks selected data could be undefined
-  deleteData() {
+  deleteData(data: GameData) {
     if (confirm('Are you sure you want to delete this data? This action cannot be undone.')) {
-      if(this.selectedData != null) {
-        this.storage.DeleteItem(this.selectedData?.FileName);
-        this.PopulateTable();
-        this.goBack();
-      } else {
-        console.error("Selected data is null");
-      }
+      this.storage.DeleteItem(data.FileName);
+      this.PopulateTable();
     }
   }
 

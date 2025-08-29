@@ -1,52 +1,42 @@
 <button mat-raised-button (click)="createTestData()">Create Test Data</button>
+@if (gameDataList.length > 0) {
+  <button mat-raised-button (click)="PopulateTable()">Reload Saves</button>
+  <button mat-raised-button (click)="clearSaves()">Clear Saves</button>
 
-@switch (currentScreen) {
-  @case ('fileScreen'){
-      @if (gameDataList.length > 0) {
-        <button mat-raised-button (click)="PopulateTable()">Reload Saves</button>
-        <button mat-raised-button (click)="clearSaves()">Clear Saves</button>
-        <table>
-          <thead>
-          <tr>
-            <th>Filename</th>
-            <th>Date</th>
-            <th>Score</th>
-            <th>Time</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (data of gameDataList; track $index) {
-            <tr>
-              <td>{{ data.FileName }}</td>
-              <td>{{ data.Date }}</td>
-              <td>{{ data.FinalScore }}</td>
-              <td>{{ data.Time }}</td>
-              <td>
-                <button mat-raised-button (click)="viewData(data)">View</button>
-              </td>
-            </tr>
+  <mat-accordion>
+    @for (data of gameDataList; track $index) {
+      <mat-expansion-panel>              
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{ data.Date }}
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ data.Time }} - {{  data.DidWin ? '✔️' : '❌' }} 
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <h1>Data from {{ data.Date }}</h1>
+
+          <h2>{{ data.DidWin ? 'Target Score Achieved' : 'Target Score Not Achieved' }}</h2>
+          <h2>{{ data.FinalScore }} / {{ data.TargetScore }} Points</h2>
+
+          <h3>Average BPM: {{ data.BpmList.GetAvgBpm() }}</h3>
+          @if(data !== null) {
+          <h3>Average SpO2: {{ Math.round(data.Spo2List.GetAvgSpo2() * 10) / 10 }}%</h3>
           }
-        </tbody>
-        </table>
-      } @else {
-        <button mat-raised-button (click)="PopulateTable()">Load Saves</button>
-        <p>No game data available. Try Loading Saves</p>
-      }
-  }
-  @case ('dataScreen'){
-      <h1>Data from {{ selectedData?.Date }}</h1>
-
-      <h2>{{ selectedData?.DidWin ? 'Target Score Achieved' : 'Target Score Not Achieved' }}</h2>
-      <h2>{{ selectedData?.FinalScore }} / {{ selectedData?.TargetScore }} Points</h2>
-
-      <h3>Average BPM: {{ selectedData?.BpmList?.GetAvgBpm() }}</h3>
-      @if(selectedData !== null) {
-      <h3>Average SpO2: {{ Math.round(selectedData.Spo2List.GetAvgSpo2() * 10) / 10 }}%</h3>
-      }
-      <button mat-raised-button (click)="goBack()">Back</button>
-      <button mat-raised-button (click)="deleteData()">Delete</button>
-  }
+          <button mat-raised-button (click)="deleteData(data)">Delete</button>
+          <div id="chartWrapper">
+            <div>
+              <canvas class="chart" id="bpmChart{{ $index }}"></canvas>
+            </div>
+            <div>
+              <canvas class="chart" id="spo2Chart{{ $index }}"></canvas>
+            </div>
+          </div>
+      </mat-expansion-panel>
+    }
+  </mat-accordion>
+} @else {
+  <button mat-raised-button (click)="PopulateTable()">Load Saves</button>
+  <p>No game data available. Try Loading Saves</p>
 }
-<canvas id="bpmChart" hidden="currentScreen !== 'dataScreen'"></canvas>
-<canvas id="spo2Chart" hidden="currentScreen !== 'dataScreen'"></canvas>
+
