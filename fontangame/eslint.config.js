@@ -30,6 +30,8 @@ module.exports = tseslint.config(
           style: "kebab-case",
         },
       ],
+      semi: ["error", "always"],
+      camelcase: ["warn", { properties: "always" }],
     },
   },
   {
