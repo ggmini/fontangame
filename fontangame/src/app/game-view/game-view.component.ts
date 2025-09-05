@@ -1,37 +1,41 @@
 import { Component, inject } from '@angular/core';
-import { timer } from 'rxjs';
-
-import { MqttClientService } from '../mqtt-client.service';
-import { bpmList, bpmUnit } from '../data/bpmData';
-import { spo2List, spo2Unit } from '../data/spo2Data';
-import { StorageService } from '../storage.service';
-import { GameData } from '../data/gameData';
-
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButton } from "@angular/material/button";
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { timer } from 'rxjs';
+
+import { MqttClientService } from '../mqtt-client.service';
+import { StorageService } from '../storage.service';
+import { bpmList, bpmUnit } from '../data/bpmData';
+import { spo2List, spo2Unit } from '../data/spo2Data';
+import { GameData } from '../data/gameData';
+import { Mission } from '../mission/mission';
+import { NoPauseMission } from '../mission/noPauseMission';
+import { ComboMission } from '../mission/comboMission';
 
 export enum Screen {
-    Menu = 'menu',
-    Game = 'game',
-    Connecting = 'connecting',
-    Pause = 'pause',
-    GameOver = 'gameOver'
-  }
+  Menu = 'menu',
+  Game = 'game',
+  Connecting = 'connecting',
+  Pause = 'pause',
+  GameOver = 'gameOver'
+}
 
 @Component({
   selector: 'app-game-view',
   standalone: true,
-  imports: [MatFormFieldModule, MatSelectModule, MatInputModule, FormsModule, MatButton],
+  imports: [MatFormFieldModule, MatSelectModule, MatInputModule, FormsModule, MatButton, MatProgressBarModule],
   templateUrl: './game-view.component.html',
-  styleUrl: './game-view.component.sass'
+  styleUrl: './game-view.component.scss'
 })
 export class GameViewComponent {
 
   currentScreen: Screen = Screen.Menu;
   MqttClientService: MqttClientService;
+  storage: StorageService = inject(StorageService);
 
   // #region Displayed Variables
   score = 0;
@@ -52,13 +56,26 @@ export class GameViewComponent {
 
   // #region Other Variables
   gameRunning = false;
-  gamePaused = false;
+  private gamePaused = false;
+  public get GamePaused(): boolean {
+    return this.gamePaused;
+  }
   bonusActive = false; // Flag to indicate if a bonus is active
   timeSinceLastUpdate = 0; //used to track lack of updates from pipo in order to warn if the device has come off
+  public get TimeSinceLastUpdate(): number {
+    return this.timeSinceLastUpdate;
+  }
   // #endregion
 
+  // #region Mission Variables
+  activeMissions: Mission[] = [];
+  comboMission: ComboMission | null = null;     //I would rather have a list of mission interfaces here, but I cannot figure out how to display mission specific data in the html 
+  noPauseMission: NoPauseMission | null = null; //neatly (i.e. without a bunch of extra properties on the mission interface, which many implementations wouldn't need)
+  // #endregion
+
+
   constructor() {
-    this.MqttClientService = inject(MqttClientService)
+    this.MqttClientService = inject(MqttClientService);
   }
 
   /**
@@ -89,9 +106,8 @@ export class GameViewComponent {
       this.targetScore,
       `gameData_${date.toISOString()}`
     );
-    const storage = inject(StorageService);
     console.log(data.Serialize());
-    storage.SaveItem(data.FileName, data.Serialize());
+    this.storage.SaveItem(data.FileName, data.Serialize());
   }
 
   // #region Game Logic
@@ -101,6 +117,7 @@ export class GameViewComponent {
    */
   timerTick() {
     this.processData();
+    this.CheckMissions();
     if (!this.gamePaused) { //if the game is paused only vital data will be processed (without scoring but that is handled in processData)
       this.timeRemaining--;
       this.timeSinceLastUpdate++;
@@ -170,6 +187,36 @@ export class GameViewComponent {
 
   // #endregion
 
+  // #region Mission Management
+
+  /**
+   * Generates the Missions to be used in the current Game; The selection of missions should be randomized, but because we are storing the missions in their
+   * individual variables, both missions are generated every time
+   */
+  GenerateMissions() {
+    this.comboMission = new ComboMission(120, 5, this);
+    this.noPauseMission = new NoPauseMission(this);
+    this.activeMissions.push(this.comboMission, this.noPauseMission);
+  }
+
+  /**
+   * Checks all active missions for completion
+   */
+  CheckMissions() {
+    this.activeMissions.forEach(mission => mission.checkCompletion());
+  }
+
+  RemoveActiveMission(mission: Mission) {
+    this.activeMissions = this.activeMissions.filter(m => m !== mission);
+  }
+
+  CheckMissionCompletion(mission: Mission) {
+    if (mission.IsCompleted) {
+      this.score += mission.Reward;
+    }
+  }
+
+  // #endregion
 
   // #region Buttons
 
@@ -185,8 +232,9 @@ export class GameViewComponent {
    * Starts the game
    */
   StartGame() {
-    this.currentScreen = Screen.Game;
+    this.GenerateMissions();
     this.gameRunning = true;
+    this.gamePaused = false;
     this.MqttClientService.pipoDidDisconnect.subscribe(() => {
       console.log('Pipo disconnected, stopping game');
       this.gamePaused = true;
@@ -197,6 +245,7 @@ export class GameViewComponent {
     this.totalTime = 10;
     this.timeRemaining = this.totalTime;
     this.timeSinceLastUpdate = 0;
+    this.currentScreen = Screen.Game;
     timer(1000).subscribe(() => this.timerTick());
   }
 

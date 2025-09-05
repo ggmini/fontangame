@@ -14,12 +14,34 @@
     }
     @case ('game'){
         <h1>Game</h1>
-        <h2>Score: {{ score }}</h2>
-        <h2> @if (multiplier > 1){Multiplier: {{ multiplier }} | Remaining: {{ bonusTime }}} </h2>
-        <h2>Time Remaining: {{ timeRemaining }} seconds</h2>
-        <p>HR: {{ curBpm }} BPM</p>
-        <p>SpO2: {{ curspo2 }} %</p>
-
+        <div id="gameLayout">
+            <div>
+                <h2>Score: {{ score }}</h2>
+                <h2> @if (multiplier > 1){Multiplier: {{ multiplier }} | Remaining: {{ bonusTime }}} </h2>
+                <h2>Time Remaining: {{ timeRemaining }} seconds</h2>
+                <p>HR: {{ curBpm }} BPM</p>
+                <p>SpO2: {{ curspo2 }} %</p>
+            </div>
+            <div id="missionDiv">
+                <!--This implementation forces us to have both missions (see the ts comment)-->
+                <span>
+                    <h2>Complete the Session without Pausing</h2>
+                    @if(noPauseMission?.IsCompleted) {
+                        <mat-progress-bar mode="buffer"></mat-progress-bar>
+                    } @else {
+                        <mat-progress-bar mode="determinate" [value]="100" color="warn"></mat-progress-bar>
+                    }
+                </span>
+                <span>
+                    <h2>Stay above {{ comboMission?.ComboTarget }} for {{ comboMission?.ComboTime }} seconds</h2>
+                    @if (comboMission?.IsCompleted) {
+                        <mat-progress-bar mode="determinate" class="mat-progress-bar-green"></mat-progress-bar>
+                    } @else {
+                        <mat-progress-bar mode="determinate" [value]="(comboMission?.ComboCounter! / comboMission?.ComboTime! * 100)"></mat-progress-bar>
+                    }
+                </span>
+            </div>
+        </div>
         @if (timeSinceLastUpdate > 3) {
           <h2 style="color: red">Warning: No updates from Pipo in the last {{ timeSinceLastUpdate }} seconds!</h2>
         }
@@ -27,7 +49,7 @@
         <button mat-raised-button (click)="PauseGame()">Pause</button>
     }
     @case ('connecting'){
-        @if (gameStarted) {
+        @if (gameRunning) {
             <h1>Connection to Pipo Lost</h1>
         } @else {
             <h1>Connecting</h1>
@@ -35,7 +57,7 @@
         <p>MQTT {{ MqttClientService.MqttConnected ? 'Connected' : 'Disconnected' }}</p>
         <p>Pipo {{ MqttClientService.PipoConnected ? 'Connected' : 'Disconnected' }}</p>
 
-        @if (gameStarted) {
+        @if (gameRunning) {
             <button mat-raised-button [disabled]="!MqttClientService.MqttConnected || !MqttClientService.PipoConnected" (click)="ResumeGame()">Resume Game</button>
         } @else {
             <button mat-raised-button [disabled]="!MqttClientService.MqttConnected || !MqttClientService.PipoConnected" (click)="StartGame()">Start Game</button>
