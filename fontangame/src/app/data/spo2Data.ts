@@ -29,6 +29,13 @@ export class spo2Unit {
     public get Time(): number {
         return this.time;
     }
+    public get TimeString(): string {
+        const min = Math.floor(this.time / 60);
+        const sec = this.time - (min * 60);
+        if (sec < 10) 
+            return `${min}:0${sec}`; //make sure the seconds are always two digits
+        return `${min}:${sec}`;
+    }
 
     public get Spo2(): number | null {
         return this.spo2;

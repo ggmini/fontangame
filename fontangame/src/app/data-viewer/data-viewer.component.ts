@@ -46,11 +46,11 @@ export class DataViewerComponent {
       const data = this.gameDataList[i];
       const bpmCtx = document.getElementById(`bpmChart${i}`) as HTMLCanvasElement;
       const spo2Ctx = document.getElementById(`spo2Chart${i}`) as HTMLCanvasElement;
-
+      const bpmTimeLabels = data.BpmList.GetAll().map(unit => unit?.TimeString || ""); // Fallback in case of missing data
       new Chart(bpmCtx, {
         type: 'line',
         data: {
-          labels: [1, 2, 3],
+          labels: bpmTimeLabels,
           datasets: [{
             label: 'BPM',
             data: data.BpmList.GetAll().map(unit => unit.Bpm) || [],
@@ -59,10 +59,11 @@ export class DataViewerComponent {
         }
       });
 
+      const spo2TimeLabels = data.Spo2List.GetAll().map(unit => unit?.TimeString || ""); // Fallback in case of missing data
       new Chart(spo2Ctx, {
         type: 'line',
         data: {
-          labels: [1, 2, 3],
+          labels: spo2TimeLabels,
           datasets: [{
             label: 'SpO2',
             data: data.Spo2List.GetAll().map(unit => unit.Spo2) || [],
