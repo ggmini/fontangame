@@ -91,8 +91,8 @@ export class DataViewerComponent {
 
   createTestData() {
     const data = GameData.CreateTestData();
-    const json = data.Serialize()
-    console.log(json)
+    const json = data.Serialize();
+    console.log(json);
     this.storage.SaveItem(data.FileName, json);
     this.PopulateTable();
   }
