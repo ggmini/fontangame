@@ -6,6 +6,8 @@ Data will be sent via MQTT when the Sensor is able to get readings (when the sen
 
 Heart Rate can freak out sometimes, but most of the time it has the same value as my Garmin Watch. For SpO2 the default formula gave me impossible values, the others were all in 3% range of each other.
 
+![Sketch](Sketch.png)
+
 ## Requirements
 ### Hardware
 - Raspberry Pi Pico 2W (Pico 1W not tested)
@@ -36,11 +38,10 @@ How to Install:
 - Install Required Packages
 
 ## Other Information
-- `main.c` makes sure `main.py` is executed automatically when the Pico starts
 - STL Models for a basic housing can be found in the housing folder (requires velcro strips or similiar to wrap around arms)
 - Uses Code from [dkallen78's project](https://github.com/dkallen78/PulseOximeter/blob/main/pulse-oximeter.py)
 
 Developed with Thonny w/ Python 3.8.10 and a Raspberry Pi Pico 2W w/ RP2350 and MicroPython 1.25.0  
 MAX30102 Housing designed with Autodesk Inventor and Blender  
-Combined PiPO2 and SSD1306 Housing can be found [here](https://makerworld.com/en/models/514436-pi-pico-case-with-ssd1306-oled-slo), the loops for the velcro were added by me  
+The Pico and SSD1306 Housing is a modified version of [this model](https://makerworld.com/en/models/514436-pi-pico-case-with-ssd1306-oled-slo), (I increased the height and added the loops for the velcro straps)  
 Housings printed on a Creality Ender 3S w/ Klipper
