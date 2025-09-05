@@ -15,17 +15,17 @@ export class MqttViewerComponent {
 
   public mqttClientService = inject(MqttClientService);
   constructor () {
-    console.log('MqttViewerComponent initialized')
+    console.log('MqttViewerComponent initialized');
   }
 
   connectButton() {
-    this.mqttClientService.connect()
-    this.refresh()
+    this.mqttClientService.connect();
+    this.refresh();
   }
 
   disconnectButton() {
-    this.mqttClientService.disconnect()
-    this.refresh()
+    this.mqttClientService.disconnect();
+    this.refresh();
   }
 
   pipoState = this.mqttClientService.PipoConnected ? 'connected' : 'disconnected';

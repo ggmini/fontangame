@@ -11,7 +11,7 @@ export class MqttClientService {
   }
 
   client = inject(MqttService);
-  mqttConnected = false
+  mqttConnected = false;
   public get MqttConnected(): boolean {
     return this.mqttConnected;
   }
@@ -21,16 +21,16 @@ export class MqttClientService {
   }
 
   connect() {
-    console.log("mqtt.connect attempt")
+    console.log("mqtt.connect attempt");
     try {
-      this.client.connect()
+      this.client.connect();
       this.client.onConnect.subscribe(() => {
         this.mqttConnected = true;
         console.log('mqtt.connect success');
         this.client.unsafePublish('fontangame/fontangame', 'connected', { qos: 0, retain: false });
       });
     } catch (error) {
-      console.error('mqtt.connect error:', error)
+      console.error('mqtt.connect error:', error);
     }
     this.subscribeToPipo();
   }

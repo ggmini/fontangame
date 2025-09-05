@@ -8,6 +8,7 @@ export class StorageService {
 
   private localStorage: Storage | undefined;
 
+  // eslint-disable-next-line @angular-eslint/prefer-inject
   constructor(@Inject(DOCUMENT) private document: Document) { 
     this.localStorage = this.document.defaultView?.localStorage;
   }
