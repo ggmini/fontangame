@@ -127,7 +127,7 @@ export class GameData {
             date,
             100,
             `gamedata_${date.toISOString()}`
-        )
+        );
     }
 
 }
