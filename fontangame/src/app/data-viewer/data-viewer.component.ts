@@ -85,7 +85,7 @@ export class DataViewerComponent {
           labels: spo2TimeLabels,
           datasets: [{
             label: 'SpO2',
-            data: data.Spo2List.GetAll().map(unit => unit.Spo2) || [],
+            data: spo2Data,
             borderWidth: 1,
             borderColor: '#089afcff',
             backgroundColor: '#089afc81',

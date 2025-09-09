@@ -12,10 +12,11 @@
       <mat-expansion-panel>              
           <mat-expansion-panel-header>
             <mat-panel-title>
-              {{ data.Date }}
+              {{ data.Date.getDate() > 9 ? data.Date.getDate() : '0' + data.Date.getDate() }}.{{ data.Date.getMonth() + 1 > 9 ? data.Date.getMonth() + 1 : '0' + (data.Date.getMonth() + 1) }}.{{ data.Date.getFullYear() }}
+              {{ data.Date.getHours() > 9 ? data.Date.getHours() : '0' + data.Date.getHours() }}:{{ data.Date.getMinutes() > 9 ? data.Date.getMinutes() : '0' + data.Date.getMinutes() }}
             </mat-panel-title>
             <mat-panel-description>
-              {{ data.Time }} - {{  data.DidWin ? '✔️' : '❌' }} 
+              {{ Math.floor(data.Time / 60) }}m {{ data.Time % 60 }}s - {{  data.DidWin ? '✔️' : '❌' }} 
             </mat-panel-description>
           </mat-expansion-panel-header>
           <h1>Data from {{ data.Date }}</h1>
