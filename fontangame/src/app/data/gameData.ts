@@ -60,7 +60,6 @@ export class GameData {
      */
     public static CreateFromJson(json: string): GameData {
         const data = JSON.parse(json);
-        console.log(data);
         //I hate the json implementation in Angular/TypeScript...this stuff is necessary so these things work like the proper objects they are
         const bpmJson = Object.assign(new bpmList(), data.bpmList);
         const bpmData = new bpmList();
@@ -104,25 +103,40 @@ export class GameData {
     }
 
     /**
-     * Creates a simple GameData Object for Testing
+     * Creates a simple GameData Object for Testing Purposes; Not for final use
      * @returns A GameData object containing some data
      */
     public static CreateTestData(): GameData {
         const BpmList: bpmList = new bpmList();
         BpmList.Add(new bpmUnit(1, 100, false));
         BpmList.Add(new bpmUnit(2, 110, false));
-        BpmList.Add(new bpmUnit(3, 120, false));
+        BpmList.Add(new bpmUnit(3, 120, true));
+        BpmList.Add(new bpmUnit(4, 115, true));
+        BpmList.Add(new bpmUnit(5, 108, true));
+        BpmList.Add(new bpmUnit(6, 125, true));
+        BpmList.Add(new bpmUnit(7, 130, true));
+        BpmList.Add(new bpmUnit(8, 105, false));
+        BpmList.Add(new bpmUnit(9, 112, false));
+        BpmList.Add(new bpmUnit(10, 118, false));
+
         const Spo2List: spo2List = new spo2List();
         Spo2List.Add(new spo2Unit(1, 96, false));
         Spo2List.Add(new spo2Unit(2, 96, false));
-        Spo2List.Add(new spo2Unit(3, 97, false));
+        Spo2List.Add(new spo2Unit(3, 97, true));
+        Spo2List.Add(new spo2Unit(4, 98, true));
+        Spo2List.Add(new spo2Unit(5, 97, true));
+        Spo2List.Add(new spo2Unit(6, 95, true));
+        Spo2List.Add(new spo2Unit(7, 99, true));
+        Spo2List.Add(new spo2Unit(8, 96, false));
+        Spo2List.Add(new spo2Unit(9, 97, false));
+        Spo2List.Add(new spo2Unit(10, 98, false));
         const date = new Date();
 
         return new GameData(
             BpmList,
             Spo2List,
-            false,
-            30,
+            true,
+            143,
             10,
             date,
             100,

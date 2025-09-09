@@ -16,7 +16,7 @@ export class NoPauseMission implements Mission {
     }
 
     checkCompletion() {
-        if (this.gameView.GamePaused) {
+        if (this.gameView.GamePaused) { //if the game is paused, the mission will be markes as failed with no way to recover
             this.isCompleted = false;
             this.gameView.RemoveActiveMission(this);
         }

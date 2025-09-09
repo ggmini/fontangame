@@ -20,7 +20,11 @@
           </mat-expansion-panel-header>
           <h1>Data from {{ data.Date }}</h1>
 
-          <h2>{{ data.DidWin ? 'Target Score Achieved' : 'Target Score Not Achieved' }}</h2>
+          @if(data.DidWin) {
+            <h2 style="color: green;"> Target Score Achieved</h2>
+          } @else {
+            <h2 style="color: red;"> Target Score Not Achieved</h2>
+          }
           <h2>{{ data.FinalScore }} / {{ data.TargetScore }} Points</h2>
 
           <h3>Average BPM: {{ data.BpmList.GetAvgBpm() }}</h3>
