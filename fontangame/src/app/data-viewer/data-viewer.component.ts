@@ -54,14 +54,14 @@ export class DataViewerComponent {
     for(let i = 0; i < this.gameDataList.length; i++) {
       const data = this.gameDataList[i];
       const bpmCtx = document.getElementById(`bpmChart${i}`) as HTMLCanvasElement;
-      const bpmUnits = data.BpmList.GetAll();
-      const bpmData = bpmUnits.map(unit => unit.Bpm) || [];
-      const bpmTimeLabels = bpmUnits.map(unit => unit?.TimeString || ""); // Fallback in case of missing data (if we don't get this beforehand the labels break, idk why, its exactly the same code/data)
-      const bpmPointColor = bpmUnits.map(unit => unit?.Paused ? '#550000ff' : '#dd1919ff'); // Dark Red if game was paused for that tick, regular red otherwise
+      const vitalsUnits = data.VitalsList.GetAll();
+      const bpmData = vitalsUnits.map(unit => unit.Bpm) || [];
+      const timeLabels = vitalsUnits.map(unit => unit?.TimeString || ""); // Fallback in case of missing data (if we don't get this beforehand the labels break, idk why, its exactly the same code/data)
+      const bpmPointColor = vitalsUnits.map(unit => unit?.Paused ? '#550000ff' : '#dd1919ff'); // Dark Red if game was paused for that tick, regular red otherwise
       this.charts.push(new Chart(bpmCtx, {
         type: 'line',
         data: {
-          labels: bpmTimeLabels,
+          labels: timeLabels,
           datasets: [{
             label: 'BPM',
             data: bpmData,
@@ -75,14 +75,12 @@ export class DataViewerComponent {
       }));
       
       const spo2Ctx = document.getElementById(`spo2Chart${i}`) as HTMLCanvasElement;
-      const spo2Units = data.Spo2List.GetAll();
-      const spo2Data = spo2Units.map(unit => unit.Spo2) || [];
-      const spo2TimeLabels = data.Spo2List.GetAll().map(unit => unit?.TimeString || ""); // Fallback in case of missing data
-      const spo2PointColor = spo2Units.map(unit => unit?.Paused ? '#000055ff' : '#089afcff'); // Dark Blue if game was paused for that tick, regular blue otherwise
+      const spo2Data = vitalsUnits.map(unit => unit.Spo2) || [];
+      const spo2PointColor = vitalsUnits.map(unit => unit?.Paused ? '#000055ff' : '#089afcff'); // Dark Blue if game was paused for that tick, regular blue otherwise
       this.charts.push(new Chart(spo2Ctx, {
         type: 'line',
         data: {
-          labels: spo2TimeLabels,
+          labels: timeLabels,
           datasets: [{
             label: 'SpO2',
             data: spo2Data,

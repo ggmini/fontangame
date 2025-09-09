@@ -84,8 +84,8 @@
             <h1>You lost!</h1>
         }
         <h2>Final Score: {{ score }}</h2>
-        <h1>Average BPM: {{ bpmStore.GetAvgBpm() }}</h1>
-        <h1>Average SpO2: {{ spo2Store.GetAvgSpo2() }}</h1>
+        <h1>Average BPM: {{ vitalsStore.GetAvgBpm() }}</h1>
+        <h1>Average SpO2: {{ vitalsStore.GetAvgSpo2() }}</h1>
         <button mat-raised-button (click)="ReturnToMenu()">Return to Menu</button>
     }
 }

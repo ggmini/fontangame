@@ -9,8 +9,8 @@ import { timer } from 'rxjs';
 
 import { MqttClientService } from '../mqtt-client.service';
 import { StorageService } from '../storage.service';
-import { bpmList, bpmUnit } from '../data/bpmData';
-import { spo2List, spo2Unit } from '../data/spo2Data';
+import { VitalsList } from '../data/vitalsList';
+import { VitalsUnit } from '../data/vitalsUnit';
 import { GameData } from '../data/gameData';
 import { Mission } from '../mission/mission';
 import { NoPauseMission } from '../mission/noPauseMission';
@@ -50,8 +50,7 @@ export class GameViewComponent {
   // #region Stored Variables
   targetScore = 100;
   totalTime = 0;
-  bpmStore: bpmList = new bpmList();
-  spo2Store: spo2List = new spo2List();
+  vitalsStore: VitalsList = new VitalsList();
   didWin = false;
   // #endregion
 
@@ -102,8 +101,7 @@ export class GameViewComponent {
   SaveResults() {
     const date = new Date();
     const data = GameData.CreateFromInput(
-      this.bpmStore,
-      this.spo2Store,
+      this.vitalsStore,
       this.didWin,
       this.score,
       this.totalTime - this.timeRemaining,
@@ -159,11 +157,9 @@ export class GameViewComponent {
       }
     }
     if (this.timeSinceLastUpdate < 3) {
-      this.bpmStore.Add(new bpmUnit(this.totalTime - this.timeRemaining, this.curBpm, this.gamePaused));
-      this.spo2Store.Add(new spo2Unit(this.totalTime - this.timeRemaining, this.curspo2, this.gamePaused));
+      this.vitalsStore.Add(new VitalsUnit(this.totalTime - this.timeRemaining, this.curBpm, this.curspo2, this.gamePaused));
     } else { //If no updates, add null values to the sore
-      this.bpmStore.Add(new bpmUnit(this.totalTime - this.timeRemaining, null, this.gamePaused));
-      this.spo2Store.Add(new spo2Unit(this.totalTime - this.timeRemaining, null, this.gamePaused));
+      this.vitalsStore.Add(new VitalsUnit(this.totalTime - this.timeRemaining, null, null, this.gamePaused));
     }
   }
 
@@ -220,6 +216,10 @@ export class GameViewComponent {
     this.activeMissions.forEach(mission => mission.checkCompletion());
   }
 
+  /**
+   * Removes a mission from the active missions list in order to save performance
+   * @param mission Mission to be removed from the active missions list
+   */
   RemoveActiveMission(mission: Mission) {
     this.activeMissions = this.activeMissions.filter(m => m !== mission);
   }
@@ -232,7 +232,7 @@ export class GameViewComponent {
 
   // #endregion
 
-  // #region Buttons
+  // #region Button Commands
 
   /**
    * Starts Connecting to MQTT and the Pipo

@@ -1,5 +1,5 @@
-import { bpmList, bpmUnit } from './bpmData';
-import { spo2List, spo2Unit } from './spo2Data';
+import { VitalsList } from './vitalsList';
+import { VitalsUnit } from './vitalsUnit';
 
 export class GameData {
 
@@ -8,13 +8,9 @@ export class GameData {
         return this.fileName;
     }
 
-    private bpmList: bpmList;
-    public get BpmList(): bpmList {
-        return this.bpmList;
-    }
-    private spo2List: spo2List;
-    public get Spo2List(): spo2List {
-        return this.spo2List;
+    private vitalsList: VitalsList;
+    public get VitalsList(): VitalsList {
+        return this.vitalsList;
     }
 
     private didWin: boolean;
@@ -42,9 +38,8 @@ export class GameData {
         return JSON.stringify(this);
     }
 
-    private constructor(bpmList: bpmList, spo2List: spo2List, didWin: boolean, finalScore: number, time: number, date: Date, targetScore: number, fileName: string) {
-        this.bpmList = bpmList;
-        this.spo2List = spo2List;
+    private constructor(vitalsList: VitalsList, didWin: boolean, finalScore: number, time: number, date: Date, targetScore: number, fileName: string) {
+        this.vitalsList = vitalsList;
         this.didWin = didWin;
         this.finalScore = finalScore;
         this.time = time;
@@ -61,22 +56,15 @@ export class GameData {
     public static CreateFromJson(json: string): GameData {
         const data = JSON.parse(json);
         //I hate the json implementation in Angular/TypeScript...this stuff is necessary so these things work like the proper objects they are
-        const bpmJson = Object.assign(new bpmList(), data.bpmList);
-        const bpmData = new bpmList();
-        bpmJson.GetAll().forEach((element: bpmUnit) => {
-            element = Object.assign(new bpmUnit(0, 0, false), element);
-            bpmData.Add(element);
+        const vitalsJson = Object.assign(new VitalsList(), data.vitalsList);
+        const vitalsData = new VitalsList();
+        vitalsJson.GetAll().forEach((element: VitalsUnit) => {
+            element = Object.assign(new VitalsUnit(0, 0, 0, false), element);
+            vitalsData.Add(element);
         });
-        //and again for spo2 data
-        const spo2Json = Object.assign(new spo2List(), data.spo2List);
-        const spo2Data = new spo2List();
-        spo2Json.GetAll().forEach((element: spo2Unit) => {
-            element = Object.assign(new spo2Unit(0, 0, false), element);
-            spo2Data.Add(element);
-        });
+
         return new GameData(
-            bpmData,
-            spo2Data,
+            vitalsData,
             data.didWin,
             data.finalScore,
             data.time,
@@ -98,8 +86,8 @@ export class GameData {
      * @param fileName Filename for the Save Data
      * @returns A new GameData object
      */
-    public static CreateFromInput(bpmList: bpmList, spo2List: spo2List, didWin: boolean, finalScore: number, time: number, date: Date, targetScore: number, fileName: string): GameData {
-        return new GameData(bpmList, spo2List, didWin, finalScore, time, date, targetScore, fileName);
+    public static CreateFromInput(vitalsList: VitalsList, didWin: boolean, finalScore: number, time: number, date: Date, targetScore: number, fileName: string): GameData {
+        return new GameData(vitalsList, didWin, finalScore, time, date, targetScore, fileName);
     }
 
     /**
@@ -107,34 +95,21 @@ export class GameData {
      * @returns A GameData object containing some data
      */
     public static CreateTestData(): GameData {
-        const BpmList: bpmList = new bpmList();
-        BpmList.Add(new bpmUnit(1, 100, false));
-        BpmList.Add(new bpmUnit(2, 110, false));
-        BpmList.Add(new bpmUnit(3, 120, true));
-        BpmList.Add(new bpmUnit(4, 115, true));
-        BpmList.Add(new bpmUnit(5, 108, true));
-        BpmList.Add(new bpmUnit(6, 125, true));
-        BpmList.Add(new bpmUnit(7, 130, true));
-        BpmList.Add(new bpmUnit(8, 105, false));
-        BpmList.Add(new bpmUnit(9, 112, false));
-        BpmList.Add(new bpmUnit(10, 118, false));
-
-        const Spo2List: spo2List = new spo2List();
-        Spo2List.Add(new spo2Unit(1, 96, false));
-        Spo2List.Add(new spo2Unit(2, 96, false));
-        Spo2List.Add(new spo2Unit(3, 97, true));
-        Spo2List.Add(new spo2Unit(4, 98, true));
-        Spo2List.Add(new spo2Unit(5, 97, true));
-        Spo2List.Add(new spo2Unit(6, 95, true));
-        Spo2List.Add(new spo2Unit(7, 99, true));
-        Spo2List.Add(new spo2Unit(8, 96, false));
-        Spo2List.Add(new spo2Unit(9, 97, false));
-        Spo2List.Add(new spo2Unit(10, 98, false));
+        const vitalsList: VitalsList = new VitalsList();
+        vitalsList.Add(new VitalsUnit(1, 100, 96, false));
+        vitalsList.Add(new VitalsUnit(2, 110, 95, false));
+        vitalsList.Add(new VitalsUnit(3, 120, 97, true));
+        vitalsList.Add(new VitalsUnit(4, 115, 98, true));
+        vitalsList.Add(new VitalsUnit(5, 108, 97, true));
+        vitalsList.Add(new VitalsUnit(6, 125, 95, true));
+        vitalsList.Add(new VitalsUnit(7, 130, 94, true));
+        vitalsList.Add(new VitalsUnit(8, 105, 96, false));
+        vitalsList.Add(new VitalsUnit(9, 112, 95, false));
+        vitalsList.Add(new VitalsUnit(10, 118, 94, false));
         const date = new Date();
 
         return new GameData(
-            BpmList,
-            Spo2List,
+            vitalsList,
             true,
             143,
             10,

@@ -28,9 +28,9 @@
           }
           <h2>{{ data.FinalScore }} / {{ data.TargetScore }} Points</h2>
 
-          <h3>Average BPM: {{ data.BpmList.GetAvgBpm() }}</h3>
+          <h3>Average BPM: {{ data.VitalsList.GetAvgBpm() }}</h3>
           @if(data !== null) {
-          <h3>Average SpO2: {{ Math.round(data.Spo2List.GetAvgSpo2() * 10) / 10 }}%</h3>
+          <h3>Average SpO2: {{ Math.round(data.VitalsList.GetAvgSpo2() * 10) / 10 }}%</h3>
           }
           <div id="chartWrapper">
             <div>
