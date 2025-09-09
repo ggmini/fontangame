@@ -1,7 +1,11 @@
 <button mat-raised-button (click)="createTestData()">Create Test Data</button>
+<button mat-raised-button (click)="importData()">Import
+    <input type="file" style="display:none"/>
+  </button>
 @if (gameDataList.length > 0) {
   <button mat-raised-button (click)="PopulateTable()">Reload Saves</button>
   <button mat-raised-button (click)="clearSaves()">Clear Saves</button>
+  
 
   <mat-accordion>
     @for (data of gameDataList; track $index) {
@@ -23,7 +27,6 @@
           @if(data !== null) {
           <h3>Average SpO2: {{ Math.round(data.Spo2List.GetAvgSpo2() * 10) / 10 }}%</h3>
           }
-          <button mat-raised-button (click)="deleteData(data)">Delete</button>
           <div id="chartWrapper">
             <div>
               <canvas class="chart" id="bpmChart{{ $index }}"></canvas>
@@ -32,6 +35,8 @@
               <canvas class="chart" id="spo2Chart{{ $index }}"></canvas>
             </div>
           </div>
+          <button mat-raised-button (click)="deleteData(data)">Delete</button>
+          <button mat-raised-button (click)="exportData(data)">Export</button>
       </mat-expansion-panel>
     }
   </mat-accordion>

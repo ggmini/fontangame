@@ -7,11 +7,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 
 import { timer } from 'rxjs';
+import { MatFormFieldModule } from "@angular/material/form-field";
 
 @Component({
   selector: 'app-data-viewer',
   standalone: true,
-  imports: [MatButtonModule, MatExpansionModule],
+  imports: [MatButtonModule, MatExpansionModule, MatFormFieldModule],
   templateUrl: './data-viewer.component.html',
   styleUrl: './data-viewer.component.scss'
 })
@@ -24,6 +25,8 @@ export class DataViewerComponent {
   selectedData: GameData | null = null;
 
   Math = Math;
+
+  charts: Chart[] = [];
 
   constructor() {
     this.PopulateTable();
@@ -41,26 +44,29 @@ export class DataViewerComponent {
   }
 
   ConstructCharts(){
+    this.destroyCharts();
     //Construct the Charts
     for(let i = 0; i < this.gameDataList.length; i++) {
       const data = this.gameDataList[i];
       const bpmCtx = document.getElementById(`bpmChart${i}`) as HTMLCanvasElement;
       const spo2Ctx = document.getElementById(`spo2Chart${i}`) as HTMLCanvasElement;
       const bpmTimeLabels = data.BpmList.GetAll().map(unit => unit?.TimeString || ""); // Fallback in case of missing data
-      new Chart(bpmCtx, {
+      this.charts.push(new Chart(bpmCtx, {
         type: 'line',
         data: {
           labels: bpmTimeLabels,
           datasets: [{
             label: 'BPM',
             data: data.BpmList.GetAll().map(unit => unit.Bpm) || [],
-            borderWidth: 1
+            borderWidth: 1,
+            borderColor: '#dd1919ff',
+            backgroundColor: 'rgba(219, 15, 8, 0.2)',
           }]
         }
-      });
+      }));
 
       const spo2TimeLabels = data.Spo2List.GetAll().map(unit => unit?.TimeString || ""); // Fallback in case of missing data
-      new Chart(spo2Ctx, {
+      this.charts.push(new Chart(spo2Ctx, {
         type: 'line',
         data: {
           labels: spo2TimeLabels,
@@ -70,8 +76,13 @@ export class DataViewerComponent {
             borderWidth: 1
           }]
         }
-      });
+      }));
     }
+  }
+
+  destroyCharts() {
+    this.charts.forEach(chart => chart.destroy());
+    this.charts = [];
   }
 
   clearSaves() {
@@ -93,9 +104,47 @@ export class DataViewerComponent {
   createTestData() {
     const data = GameData.CreateTestData();
     const json = data.Serialize();
-    console.log(json);
     this.storage.SaveItem(data.FileName, json);
     this.PopulateTable();
+  }
+
+  exportData(data: GameData) {
+    const blob = new Blob([data.Serialize()], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${data.FileName}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  importData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+
+    input.onchange = (event: any) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          const json = e.target.result;
+          const data = GameData.CreateFromJson(json);
+          this.storage.SaveItem(data.FileName, json);
+          this.PopulateTable();
+        };
+        reader.readAsText(file);
+      }
+      // Reset input value so the same file can be selected again
+      input.value = '';
+      document.body.removeChild(input);
+    };
+
+    input.click();
   }
 
 }
