@@ -44,6 +44,7 @@ export class GameViewComponent {
   curspo2 = 0; // current spo2
   bonusTime = 0; // Remaining bonus time for random events
   multiplier = 1; // Multiplier for score calculation
+  timeSinceLastBonus = 0; // Time since the last bonus was activated
   // #endregion
 
   // #region Stored Variables
@@ -121,12 +122,15 @@ export class GameViewComponent {
     if (!this.gamePaused) { //if the game is paused only vital data will be processed (without scoring but that is handled in processData)
       this.timeRemaining--;
       this.timeSinceLastUpdate++;
-      if (!this.bonusActive) //TODO: Add minimum time between bonuses
+      if (!this.bonusActive) {
         this.checkForRandomEvent();
+        this.timeSinceLastBonus++;
+      }
       else {
         if (this.bonusTime == 0){ //If bonus time has expired reset the multiplier and flag
           this.bonusActive = false;
           this.multiplier = 1;
+          this.timeSinceLastBonus = 0; //Reset the timer for last bonus
         } else this.bonusTime--;
       }
       if (this.timeRemaining === 0) {
@@ -162,7 +166,12 @@ export class GameViewComponent {
    * Checks for random events
    */
   checkForRandomEvent() {
-    if (Math.random() < 0.1) // 10% chance of a random event
+    if(this.timeSinceLastBonus < 30) return; //Make sure at least 30s have passed since the last bonus
+    let chance = 0.1;
+    let i = Math.floor(this.timeSinceLastBonus / 30);
+    chance = chance * i; //Increase chance by 10% for every 30s since the last bonus
+    if (chance > 0.5) chance = 0.5; //Cap chance at 50%
+    if (Math.random() < chance)
       this.generateRandomEvent();
   }
 
@@ -171,7 +180,7 @@ export class GameViewComponent {
    */
   generateRandomEvent() {
     this.multiplier = 2;
-    this.bonusTime = 10; // Example values for multiplier and bonus time
+    this.bonusTime = Math.random() * 60 + 30; //Random bonus time between 30s and 90s
     this.bonusActive = true;
   }
 
