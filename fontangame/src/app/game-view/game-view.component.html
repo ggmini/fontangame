@@ -24,22 +24,26 @@
             </div>
             <div id="missionDiv">
                 <!--This implementation forces us to have both missions (see the ts comment)-->
-                <span id="misionSpan">
+                <div class="missionBox">
                     <h2>Complete the Session without Pausing</h2>
                     @if(noPauseMission?.IsCompleted) {
                         <mat-progress-bar mode="buffer"></mat-progress-bar>
+                        <h3> </h3>
                     } @else {
                         <mat-progress-bar mode="determinate" [value]="100" color="warn"></mat-progress-bar>
+                        <h3 style="color: red;">Mission Failed</h3>
                     }
-                </span>
-                <span id="missionSpan">
+                </div>
+                <div class="missionBox">
                     <h2>Stay above {{ comboMission?.ComboTarget }} for {{ comboMission?.ComboTime }} seconds</h2>
                     @if (comboMission?.IsCompleted) {
                         <mat-progress-bar mode="determinate" class="mat-progress-bar-green"></mat-progress-bar>
+                        <h3 style="color: green;">Mission Completed</h3>
                     } @else {
                         <mat-progress-bar mode="determinate" [value]="(comboMission?.ComboCounter! / comboMission?.ComboTime! * 100)"></mat-progress-bar>
+                        <h3> </h3>
                     }
-                </span>
+                </div>
             </div>
         </div>
         @if (timeSinceLastUpdate > 3) {

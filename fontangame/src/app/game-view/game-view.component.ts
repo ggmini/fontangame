@@ -57,9 +57,13 @@ export class GameViewComponent {
 
   // #region Other Variables
   gameRunning = false;
-  private gamePaused = false;
   public get GamePaused(): boolean {
     return this.gamePaused;
+  }
+  private gamePaused = false;
+  private wasPausedDuringLastTick = false; //we'll track this its possible to pause and unpause the game before the tick function is called again and the mission would not register the pause
+  public get WasPausedDuringLastTick(): boolean {
+    return this.wasPausedDuringLastTick;
   }
   bonusActive = false; // Flag to indicate if a bonus is active
   timeSinceLastUpdate = 0; //used to track lack of updates from pipo in order to warn if the device has come off
@@ -119,6 +123,7 @@ export class GameViewComponent {
   timerTick() {
     this.processData();
     this.CheckMissions();
+    this.wasPausedDuringLastTick = this.gamePaused; //Update the pause tracking variable after checking missions
     if (!this.gamePaused) { //if the game is paused only vital data will be processed (without scoring but that is handled in processData)
       this.timeRemaining--;
       this.timeSinceLastUpdate++;
@@ -168,7 +173,7 @@ export class GameViewComponent {
   checkForRandomEvent() {
     if(this.timeSinceLastBonus < 30) return; //Make sure at least 30s have passed since the last bonus
     let chance = 0.1;
-    let i = Math.floor(this.timeSinceLastBonus / 30);
+    const i = Math.floor(this.timeSinceLastBonus / 30);
     chance = chance * i; //Increase chance by 10% for every 30s since the last bonus
     if (chance > 0.5) chance = 0.5; //Cap chance at 50%
     if (Math.random() < chance)
@@ -180,7 +185,7 @@ export class GameViewComponent {
    */
   generateRandomEvent() {
     this.multiplier = 2;
-    this.bonusTime = Math.random() * 60 + 30; //Random bonus time between 30s and 90s
+    this.bonusTime = Math.floor(Math.random() * 60 + 30); //Random bonus time between 30s and 90s
     this.bonusActive = true;
   }
 
@@ -254,6 +259,7 @@ export class GameViewComponent {
     this.totalTime = 10;
     this.timeRemaining = this.totalTime;
     this.timeSinceLastUpdate = 0;
+    this.timeSinceLastBonus = 30; //Set to 30 so that a bonus can be generated right away
     this.currentScreen = Screen.Game;
     timer(1000).subscribe(() => this.timerTick());
   }
@@ -264,6 +270,7 @@ export class GameViewComponent {
   PauseGame() {
     this.currentScreen = Screen.Pause;
     this.gamePaused = true;
+    this.wasPausedDuringLastTick = true;
   }
 
   /**
