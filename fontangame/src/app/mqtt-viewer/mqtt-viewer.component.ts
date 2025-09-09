@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { MqttClientService } from '../mqtt-client.service';
 
 /**
- * Component used to test MQTT Connectivity
+ * Component used to test MQTT Connectivity; Not to be used for final release
  */
 @Component({
   selector: 'app-mqtt-viewer',
