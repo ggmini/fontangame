@@ -49,7 +49,7 @@ export class GameViewComponent {
 
   // #region Stored Variables
   targetScore = 100;
-  totalTime = 0;
+  totalTime = 10;
   vitalsStore: VitalsList = new VitalsList();
   didWin = false;
   // #endregion
@@ -69,6 +69,8 @@ export class GameViewComponent {
   public get TimeSinceLastUpdate(): number {
     return this.timeSinceLastUpdate;
   }
+
+  Math = Math; //Making Math available in the html
   // #endregion
 
   // #region Mission Variables
@@ -256,7 +258,6 @@ export class GameViewComponent {
     });
     this.MqttClientService.subscribeToData();
     this.subscribeToData();
-    this.totalTime = 10;
     this.timeRemaining = this.totalTime;
     this.timeSinceLastUpdate = 0;
     this.timeSinceLastBonus = 30; //Set to 30 so that a bonus can be generated right away
