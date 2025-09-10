@@ -103,7 +103,7 @@
         <p>HR: {{ curBpm }} BPM</p>
         <p>SpO2: {{ curspo2 }} %</p>
         <button mat-raised-button (click)="ResumeGame()">Resume Game</button>
-        <button mat-raised-button (click)="ReturnToMenu()">Save and Quit</button>
+        <button mat-raised-button (click)="SaveAndQuitToMenu()">Save and Quit</button>
         <button mat-raised-button (click)="QuitToMenu()">Quit</button>
     }
     @case ('gameOver') {
@@ -115,6 +115,6 @@
         <h2>Final Score: {{ score }}</h2>
         <h1>Average BPM: {{ vitalsStore.GetAvgBpm() }}</h1>
         <h1>Average SpO2: {{ vitalsStore.GetAvgSpo2() }}</h1>
-        <button mat-raised-button (click)="ReturnToMenu()">Return to Menu</button>
+        <button mat-raised-button (click)="SaveAndReturnToMenu()">Return to Menu</button>
     }
 }

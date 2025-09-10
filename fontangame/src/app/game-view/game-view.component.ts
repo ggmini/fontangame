@@ -292,9 +292,16 @@ export class GameViewComponent {
   /**
    * Returns to the main menu and saves the session data (to be used after game is finished)
    */
-  ReturnToMenu() {
+  SaveAndReturnToMenu() {
     this.SaveResults();
     window.location.reload(); //Reloading the window will send us back to the Menu Screen and will reset all the variables for us
+  }
+
+  SaveAndQuitToMenu() {
+    if (this.score >= this.targetScore)
+      this.didWin = true;
+    this.SaveResults();
+    window.location.reload();
   }
 
   /**
