@@ -3,10 +3,10 @@
     <h1>Menu</h1>
     <mat-form-field>
       <mat-label>Difficulty</mat-label>
-      <mat-select [(value)]="targetScore" required>
-        <mat-option value="100">Easy</mat-option>
-        <mat-option value="200">Medium</mat-option>
-        <mat-option value="300">Hard</mat-option>
+      <mat-select [(value)]="targetHR" required>
+        <mat-option value="110">Easy</mat-option>
+        <mat-option value="120">Medium</mat-option>
+        <mat-option value="130">Hard</mat-option>
       </mat-select>
     </mat-form-field>
     <mat-form-field id="timeSelect">
@@ -21,9 +21,10 @@
       </mat-select>
     </mat-form-field>
     <div style="display: flex; align-items: center; gap: 20px;">
-        <p style="width: 212px">Target Score: {{ targetScore }}</p>
+        <p style="width: 212px">Target Heart Rate: {{ targetHR }} BPM</p>
         <p style="width: 212px">Training Time: {{ Math.floor(totalTime / 60) }} Minutes</p>
     </div>
+    <p>Target Score: {{ CalculateTargetScore() }}</p>
     <button mat-raised-button (click)="StartConnecting()">Connect</button>
     }
     @case ('game'){

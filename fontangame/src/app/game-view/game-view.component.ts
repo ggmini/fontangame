@@ -48,6 +48,7 @@ export class GameViewComponent {
   // #endregion
 
   // #region Stored Variables
+  targetHR = 120;
   targetScore = 100;
   totalTime = 10;
   vitalsStore: VitalsList = new VitalsList();
@@ -95,6 +96,10 @@ export class GameViewComponent {
     this.MqttClientService.spo2Subscription.subscribe((spo2) => {
       this.curspo2 = spo2;
     });
+  }
+
+  CalculateTargetScore(): number {
+    return (this.targetHR - 100) * this.totalTime; //Simple target score calculation based on target HR and total time
   }
 
   /**
@@ -248,6 +253,7 @@ export class GameViewComponent {
    * Starts the game
    */
   StartGame() {
+    this.targetScore = this.CalculateTargetScore();
     this.GenerateMissions();
     this.gameRunning = true;
     this.gamePaused = false;
