@@ -18,8 +18,8 @@ def connect():
     myClient = client
     return client
     
-def publish(topic, msg):
-    myClient.publish(topic, msg, qos=0)    
+def publish(client, topic, msg):
+    client.publish(topic, msg, qos=0)    
 
 def handleMessage(btopic, bmsg):
     global myClient

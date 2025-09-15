@@ -114,98 +114,98 @@ def main():
     irLow = 1000000
     redHigh = 0
     redLow = 1000000
-    #try:
-    while True:
-        client.check_msg()
-        #check must be polled continuously to check if there are new readings in the fifo queue. if readings are available they will be put into storage 
-        sensor.check()
-        timeout = 0
+    try:
+        while True:
+            client.check_msg()
+            #check must be polled continuously to check if there are new readings in the fifo queue. if readings are available they will be put into storage 
+            sensor.check()
+            timeout = 0
 
-        #check if storage contains samples
-        if sensor.available():
-            #access the fifo queue and gather readings (ints)
-            red_reading = sensor.pop_red_from_storage()
-            ir_reading = sensor.pop_ir_from_storage()
-            
-            #TODO: remove console logs later
-            #print("red reading", red_reading, "ir reading", ir_reading)
-            
-            #calc change in ir value between last 2 reads and add it to list and calc average of last 5
-            prev = curr
-            curr = ir_reading
-            irChngStor.pop(0)
-            irChngStor.append(curr - prev)
-            avgChng = sum(irChngStor) / 5
-            
-            #if we just passed a peak and were looking for a peak calc bpm
-            if avgChng < -5 and lookpeak:
-                timeout = 0
-                #calc bpm as ms per second/ms between beats
-                bpm = 60000 / (time.ticks_ms() - millis)
-                #reset the time stored for start of time between this beat and next
-                millis = time.ticks_ms()
-                bpmStor.pop(0)
-                bpmStor.append(bpm)
+            #check if storage contains samples
+            if sensor.available():
+                #access the fifo queue and gather readings (ints)
+                red_reading = sensor.pop_red_from_storage()
+                ir_reading = sensor.pop_ir_from_storage()
                 
-                #print avg of last ten bpm, eliminate high and low vals
-                bpm = ((sum(bpmStor) - (max(bpmStor) + min(bpmStor))) / (len(bpmStor) - 2))
-                print ("bpm", round(bpm)) #TODO: remove console logs later
-                PR = bpm
-                lookpeak = False
+                #TODO: remove console logs later
+                #print("red reading", red_reading, "ir reading", ir_reading)
                 
-                #find spo2
-                #remove oldest val and add newest
-                spO2Stor.pop(0)
-                spO2Stor.append(calculate_spO2(redHigh, redLow, irHigh, irLow))
-                #average the array of stored spO2 vals but remove min and max (possible outliers)
-                spO2local = ((sum(spO2Stor) - (max(spO2Stor) + min(spO2Stor))) / (len(spO2Stor) - 2))
-                print("SpO2", round(spO2local, 2), "%") #TODO: remove console logs later
+                #calc change in ir value between last 2 reads and add it to list and calc average of last 5
+                prev = curr
+                curr = ir_reading
+                irChngStor.pop(0)
+                irChngStor.append(curr - prev)
+                avgChng = sum(irChngStor) / 5
                 
-                #reset vals for next beat
-                irHigh = 0
-                irLow = 100000
-                redHigh = 0
-                redLow = 100000
+                #if we just passed a peak and were looking for a peak calc bpm
+                if avgChng < -5 and lookpeak:
+                    timeout = 0
+                    #calc bpm as ms per second/ms between beats
+                    bpm = 60000 / (time.ticks_ms() - millis)
+                    #reset the time stored for start of time between this beat and next
+                    millis = time.ticks_ms()
+                    bpmStor.pop(0)
+                    bpmStor.append(bpm)
+                    
+                    #print avg of last ten bpm, eliminate high and low vals
+                    bpm = ((sum(bpmStor) - (max(bpmStor) + min(bpmStor))) / (len(bpmStor) - 2))
+                    print ("bpm", round(bpm)) #TODO: remove console logs later
+                    PR = bpm
+                    lookpeak = False
+                    
+                    #find spo2
+                    #remove oldest val and add newest
+                    spO2Stor.pop(0)
+                    spO2Stor.append(calculate_spO2(redHigh, redLow, irHigh, irLow))
+                    #average the array of stored spO2 vals but remove min and max (possible outliers)
+                    spO2local = ((sum(spO2Stor) - (max(spO2Stor) + min(spO2Stor))) / (len(spO2Stor) - 2))
+                    print("SpO2", round(spO2local, 2), "%") #TODO: remove console logs later
+                    
+                    #reset vals for next beat
+                    irHigh = 0
+                    irLow = 100000
+                    redHigh = 0
+                    redLow = 100000
 
-                #output to display
-                oled.fill(0)
-                bpm = str(round(bpm))
-                spO2 = str(round(spO2local, 2))
-                bpmScreen = "BPM: " + bpm
-                spO2Screen = "SpO2: " + spO2 + "%"
-                oled.text(bpmScreen, 0, 20)
-                oled.text(spO2Screen, 0, 40)
-                oled.show()                    
+                    #output to display
+                    oled.fill(0)
+                    bpm = str(round(bpm))
+                    spO2 = str(round(spO2local, 2))
+                    bpmScreen = "BPM: " + bpm
+                    spO2Screen = "SpO2: " + spO2 + "%"
+                    oled.text(bpmScreen, 0, 20)
+                    oled.text(spO2Screen, 0, 40)
+                    oled.show()                    
+                    
+                    mqtt.publish(client, "fontangame/spo2", spO2)
+                    mqtt.publish(client, "fontangame/bpm", bpm)
+                    
+                #if were not looking for beat check if we should be looking for beat
+                elif avgChng > 0.5 and not lookpeak:
+                    lookpeak = True
                 
-                mqtt.publish("fontangame/spo2", spO2)
-                mqtt.publish("fontangame/bpm", bpm)
-                
-            #if were not looking for beat check if we should be looking for beat
-            elif avgChng > 0.5 and not lookpeak:
-                lookpeak = True
-            
-            #see if vals are high or low in beat
-            if (ir_reading > irHigh):
-                irHigh = ir_reading
-            if (ir_reading < irLow):
-                irLow = ir_reading
-            if (red_reading > redHigh):
-                redHigh = red_reading
-            if (red_reading < redLow):
-                redLow = red_reading
-    #except OSError:
-    #    try:
-    #        mqtt.publish(client, "fontangame/pipo2", "disconnected")
-    #        oled.fill(0)
-    #        oled.text(":(", 0, 0)
-    #        oled.text("Sensor Connection", 0, 20)
-    #        oled.text("lost", 0, 40)
-    #        oled.show()
-    #    except:
-    #        oled.fill(0)
-    #        oled.text(":(", 0, 20)
-    #        oled.text("OSError -104", 0, 40)
-    #        oled.show()
+                #see if vals are high or low in beat
+                if (ir_reading > irHigh):
+                    irHigh = ir_reading
+                if (ir_reading < irLow):
+                    irLow = ir_reading
+                if (red_reading > redHigh):
+                    redHigh = red_reading
+                if (red_reading < redLow):
+                    redLow = red_reading
+    except OSError:
+        try:
+            mqtt.publish(client, "fontangame/pipo2", "disconnected")
+            oled.fill(0)
+            oled.text(":(", 0, 0)
+            oled.text("Sensor Connection", 0, 20)
+            oled.text("lost", 0, 40)
+            oled.show()
+        except OSError: #im assuming this is a wifi error
+            oled.fill(0)
+            oled.text(":(", 0, 20)
+            oled.text("OSError -104", 0, 40)
+            oled.show()
         
         
 if __name__ == "__main__":
