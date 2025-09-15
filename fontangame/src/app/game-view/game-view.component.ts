@@ -40,6 +40,7 @@ export class GameViewComponent {
   // #region Displayed Variables
   score = 0;
   timeRemaining = 0;
+  stopwatch = 0; // Time elapsed since the start of the game
   curBpm = 0; // current bpm
   curspo2 = 0; // current spo2
   bonusTime = 0; // Remaining bonus time for random events
@@ -126,6 +127,7 @@ export class GameViewComponent {
    * Timer tick function that updates the game state every second
    */
   timerTick() {
+    this.stopwatch++;
     this.processData();
     this.CheckMissions();
     this.wasPausedDuringLastTick = this.gamePaused; //Update the pause tracking variable after checking missions
@@ -164,9 +166,9 @@ export class GameViewComponent {
       }
     }
     if (this.timeSinceLastUpdate < 3) {
-      this.vitalsStore.Add(new VitalsUnit(this.totalTime - this.timeRemaining, this.curBpm, this.curspo2, this.gamePaused));
+      this.vitalsStore.Add(new VitalsUnit(this.stopwatch, this.curBpm, this.curspo2, this.gamePaused));
     } else { //If no updates, add null values to the sore
-      this.vitalsStore.Add(new VitalsUnit(this.totalTime - this.timeRemaining, null, null, this.gamePaused));
+      this.vitalsStore.Add(new VitalsUnit(this.stopwatch, null, null, this.gamePaused));
     }
   }
 
@@ -265,6 +267,7 @@ export class GameViewComponent {
     this.MqttClientService.subscribeToData();
     this.subscribeToData();
     this.timeRemaining = this.totalTime;
+    this.stopwatch = 0;
     this.timeSinceLastUpdate = 0;
     this.timeSinceLastBonus = 30; //Set to 30 so that a bonus can be generated right away
     this.currentScreen = Screen.Game;
