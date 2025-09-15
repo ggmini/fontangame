@@ -8,11 +8,12 @@ export class GameData {
         return this.fileName;
     }
 
-    private vitalsList: VitalsList;
+    private vitalsList: VitalsList; //List of VitalsUnit objects containing the BPM and SpO2 data
     public get VitalsList(): VitalsList {
         return this.vitalsList;
     }
 
+    //General game data
     private didWin: boolean;
     public get DidWin(): boolean {
         return this.didWin;
