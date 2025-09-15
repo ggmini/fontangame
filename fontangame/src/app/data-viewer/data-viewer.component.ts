@@ -8,11 +8,12 @@ import { MatExpansionModule } from '@angular/material/expansion';
 
 import { timer } from 'rxjs';
 import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatProgressBar } from "@angular/material/progress-bar";
 
 @Component({
   selector: 'app-data-viewer',
   standalone: true,
-  imports: [MatButtonModule, MatExpansionModule, MatFormFieldModule],
+  imports: [MatButtonModule, MatExpansionModule, MatFormFieldModule, MatProgressBar],
   templateUrl: './data-viewer.component.html',
   styleUrl: './data-viewer.component.scss'
 })
@@ -27,6 +28,8 @@ export class DataViewerComponent {
   Math = Math;
 
   charts: Chart[] = [];
+
+  weeklyProgress = 0;
 
   constructor() {
     this.PopulateTable();
@@ -44,7 +47,7 @@ export class DataViewerComponent {
     }).filter((data): data is GameData => data !== null);
 
     this.gameDataList.sort((a, b) => new Date(b.Date).getTime() - new Date(a.Date).getTime()); // Sort by most recent date first
-
+    this.GetWeeklyProgress();
     timer(10).subscribe(() => this.ConstructCharts()); //this is delayed to make sure the charts are constructed after the DOM is ready (the canvases should exist)
   }
 
@@ -93,6 +96,19 @@ export class DataViewerComponent {
         }
       }));
     }
+  }
+
+  GetWeeklyProgress() {
+    const now = new Date();
+    const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay(); // Treat Sunday as 7
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - (dayOfWeek - 1)); // Monday as start of week
+    startOfWeek.setHours(0, 0, 0, 0);
+    const recentData = this.gameDataList.filter(data => {
+      const dataDate = new Date(data.Date);
+      return dataDate >= startOfWeek && dataDate <= now;
+    });
+    this.weeklyProgress = recentData.length;
   }
 
   /**
