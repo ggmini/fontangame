@@ -1,4 +1,3 @@
-import _thread
 from machine import Pin, SoftI2C
 from ssd1306 import SSD1306_I2C
 import time, math
@@ -33,7 +32,6 @@ def calculate_spO2(red_max, red_min, ir_max, ir_min):
     return spO2
 
 def main():
-    global dataToPublish
     #Set up the Screen
     width=128 
     height=64    
@@ -50,6 +48,7 @@ def main():
     
     wifi.connect()
     client = mqtt.connect()
+    client.subscribe("fontangame/pipo2")
     
     #Set up the MAX Sensor
     oled.fill(0)
@@ -115,8 +114,9 @@ def main():
     irLow = 1000000
     redHigh = 0
     redLow = 1000000
-
+    #try:
     while True:
+        client.check_msg()
         #check must be polled continuously to check if there are new readings in the fifo queue. if readings are available they will be put into storage 
         sensor.check()
         timeout = 0
@@ -159,7 +159,7 @@ def main():
                 spO2Stor.append(calculate_spO2(redHigh, redLow, irHigh, irLow))
                 #average the array of stored spO2 vals but remove min and max (possible outliers)
                 spO2local = ((sum(spO2Stor) - (max(spO2Stor) + min(spO2Stor))) / (len(spO2Stor) - 2))
-                print("spO2", round(spO2local, 2)) #TODO: remove console logs later
+                print("SpO2", round(spO2local, 2), "%") #TODO: remove console logs later
                 
                 #reset vals for next beat
                 irHigh = 0
@@ -175,12 +175,10 @@ def main():
                 spO2Screen = "SpO2: " + spO2 + "%"
                 oled.text(bpmScreen, 0, 20)
                 oled.text(spO2Screen, 0, 40)
-                oled.show()
+                oled.show()                    
                 
-                dataToPublish = True # We have new BPM/SpO2 data to publish
-                
-                mqtt.publish(client, "fontangame/spo2", spO2)
-                mqtt.publish(client, "fontangame/bpm", bpm)
+                mqtt.publish("fontangame/spo2", spO2)
+                mqtt.publish("fontangame/bpm", bpm)
                 
             #if were not looking for beat check if we should be looking for beat
             elif avgChng > 0.5 and not lookpeak:
@@ -195,10 +193,20 @@ def main():
                 redHigh = red_reading
             if (red_reading < redLow):
                 redLow = red_reading
+    #except OSError:
+    #    try:
+    #        mqtt.publish(client, "fontangame/pipo2", "disconnected")
+    #        oled.fill(0)
+    #        oled.text(":(", 0, 0)
+    #        oled.text("Sensor Connection", 0, 20)
+    #        oled.text("lost", 0, 40)
+    #        oled.show()
+    #    except:
+    #        oled.fill(0)
+    #        oled.text(":(", 0, 20)
+    #        oled.text("OSError -104", 0, 40)
+    #        oled.show()
+        
         
 if __name__ == "__main__":
-    #try:
     main()
-    #except Exception as e:
-    #    if (e.arg != "I2C device ID not corresponding to MAX30102 or MAX30105." and e.arg != "Sensor not found"):
-    #        sys.exit() #If it's not a Sensor Error reboot (we want the user to see error related to the sensor on the screen)

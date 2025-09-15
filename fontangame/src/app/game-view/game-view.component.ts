@@ -39,6 +39,7 @@ export class GameViewComponent {
 
   // #region Displayed Variables
   score = 0;
+  newScore = 0; //Score achieved in the last second, used for visualising score changes
   timeRemaining = 0;
   stopwatch = 0; // Time elapsed since the start of the game
   curBpm = 0; // current bpm
@@ -157,11 +158,13 @@ export class GameViewComponent {
    * Process current vitals data and saves it to the Stores, adds new points to score
    */
   processData() {
+    this.score += this.newScore; //Add the new score to the total score
+    this.newScore = 0; //Reset new score
     if(!this.gamePaused) { //if the game isn't paused add to the score
        if(this.timeSinceLastUpdate < 3) {
         const pointsToAdd = this.curBpm - 100; //every beat over 100 is a point
         if(pointsToAdd > 0) { //make sure we're not subtracting points
-          this.score += (pointsToAdd * this.multiplier);
+          this.newScore = (pointsToAdd * this.multiplier);
         }
       }
     }
@@ -249,6 +252,10 @@ export class GameViewComponent {
   StartConnecting() {
     this.currentScreen = Screen.Connecting;
     this.MqttClientService.connect();
+  }
+
+  PingPico() {
+    this.MqttClientService.PingPico();
   }
 
   /**

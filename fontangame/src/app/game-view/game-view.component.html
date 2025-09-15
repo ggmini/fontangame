@@ -30,8 +30,12 @@
     @case ('game'){
         <h1>Game</h1>
         <div id="gameLayout">
-            <div>
-                <h2 id="scoreHeader">Score: {{ score }} / {{ targetScore }}</h2>
+            <div>                    
+                @if (newScore > 0) {
+                    <h2 id="scoreHeader">Score: {{ score }} <span style="color: orange;"> + {{ newScore }}</span> / {{ targetScore }}</h2>
+                } @else {
+                    <h2 id="scoreHeader">Score: {{ score }} / {{ targetScore }}</h2>
+                }
                 <div class="meter">
                     @if (score >= targetScore) {
                         <span style="width: 100%"></span>
@@ -48,8 +52,14 @@
                     <h2>Time Remaining: {{ Math.floor(timeRemaining / 60) }} Minutes {{ timeRemaining % 60 }} Seconds</h2>
                 }
                 <h2>@if (multiplier > 1){Multiplier: {{ multiplier }} | Remaining: {{ bonusTime }}} </h2>
-                <p>HR: {{ curBpm }} BPM</p>
-                <p>SpO2: {{ curspo2 }} %</p>
+                @if(curBpm < 100) {
+                    <h3 class="vitals" style="color: red;">HR: {{ curBpm }} BPM</h3>
+                } @else if (curBpm < targetHR) {
+                    <h3 class="vitals">HR: {{ curBpm }} BPM</h3>
+                } @else {
+                    <h3 class="vitals" style="color: green;">HR: {{ curBpm }} BPM</h3>
+                }
+                <h3 class="vitals">SpO2: {{ curspo2 }} %</h3>
             </div>
             <div id="missionDiv">
                 <!--This implementation forces us to have both missions (see the ts comment)-->
@@ -90,6 +100,7 @@
         <p>MQTT {{ MqttClientService.MqttConnected ? 'Connected' : 'Disconnected' }}</p>
         <p>Pipo {{ MqttClientService.PipoConnected ? 'Connected' : 'Disconnected' }}</p>
 
+        <button mat-raised-button (click)="PingPico()" [disabled]="MqttClientService.MqttConnected && MqttClientService.PipoConnected || !MqttClientService.MqttConnected">Retry Connection</button>
         @if (gameRunning) {
             <button mat-raised-button [disabled]="!MqttClientService.MqttConnected || !MqttClientService.PipoConnected" (click)="ResumeGame()">Resume Game</button>
         } @else {

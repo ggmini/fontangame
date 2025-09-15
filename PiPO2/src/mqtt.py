@@ -8,24 +8,22 @@ user = "<user>"
 pw = "<password>"
 
 def connect():
-    """Connects to the preset MQTT Broker and sets the last will
-
-    Returns:
-        MQTTClient: A new MQTT Client
-    """
+    global myClient
     client = MQTTClient(clientid, host, port, user, pw, ssl=True, ssl_params={'server_hostname':host})
-    client.set_last_will("fontangame/pipo2", "disconnected", retain=True, qos=2)
     client.connect()
     print("MQTT Connected")
-    client.publish("fontangame/pipo2", "connected", retain=True, qos=1)
+    client.set_callback(handleMessage)
+    client.subscribe("fontangame/pipo2")
+    client.publish("fontangame/pipo2", "connected", qos=1)
+    myClient = client
     return client
     
-def publish(client, topic, msg):
-    """Publishes a Message to the selected topic using the provided broker without Retain and QOS 0
+def publish(topic, msg):
+    myClient.publish(topic, msg, qos=0)    
 
-    Args:
-        client (MQTTClient): The MQTT Client to use
-        topic (string): The Topic that will be published to
-        msg (string): The message that will be published
-    """
-    client.publish(topic, msg, qos=0)
+def handleMessage(btopic, bmsg):
+    global myClient
+    topic = btopic.decode("utf-8")
+    msg = bmsg.decode("utf-8")
+    if topic == "fontangame/pipo2" and msg == "state":
+        publish("fontangame/pipo2", "connected")

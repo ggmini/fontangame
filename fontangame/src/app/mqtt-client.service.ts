@@ -73,5 +73,7 @@ export class MqttClientService {
     }
   }
 
-
+  PingPico() {
+    this.client.unsafePublish('fontangame/pipo2', 'state', { qos: 0, retain: false });
+  }
 }
