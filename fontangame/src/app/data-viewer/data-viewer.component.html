@@ -1,23 +1,23 @@
 <div id="weeklyProgressBar">
-  <h2>Sessions this week: {{ weeklyProgress }} / 3</h2>
-  @if (weeklyProgress >= 3) {
+  <h2>Sessions this week: {{ WeeklyProgress }} / 3</h2>
+  @if (WeeklyProgress >= 3) {
     <mat-progress-bar mode="determinate" class="mat-progress-bar-green"></mat-progress-bar>
   } @else {
-    <mat-progress-bar mode="determinate" [value]="(weeklyProgress / 3) * 100"></mat-progress-bar>
+    <mat-progress-bar mode="determinate" [value]="(WeeklyProgress / 3) * 100"></mat-progress-bar>
   }
 </div>
 
-<button mat-raised-button (click)="createTestData()">Create Test Data</button>
-<button mat-raised-button (click)="importData()">Import
+<button mat-raised-button (click)="CreateTestData()">Create Test Data</button>
+<button mat-raised-button (click)="ImportData()">Import
     <input type="file" style="display:none"/>
   </button>
-@if (gameDataList.length > 0) {
+@if (GameDataList.length > 0) {
   <button mat-raised-button (click)="PopulateTable()">Reload Saves</button>
-  <button mat-raised-button (click)="clearSaves()">Clear Saves</button>
+  <button mat-raised-button (click)="ClearSaves()">Clear Saves</button>
   
 
   <mat-accordion>
-    @for (data of gameDataList; track $index) {
+    @for (data of GameDataList; track $index) {
       <mat-expansion-panel>              
           <mat-expansion-panel-header>
             <mat-panel-title>
@@ -50,8 +50,8 @@
               <canvas class="chart" id="spo2Chart{{ $index }}"></canvas>
             </div>
           </div>
-          <button mat-raised-button (click)="deleteData(data)">Delete</button>
-          <button mat-raised-button (click)="exportData(data)">Export</button>
+          <button mat-raised-button (click)="DeleteData(data)">Delete</button>
+          <button mat-raised-button (click)="ExportData(data)">Export</button>
       </mat-expansion-panel>
     }
   </mat-accordion>

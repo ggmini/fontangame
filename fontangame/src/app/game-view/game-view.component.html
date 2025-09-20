@@ -1,9 +1,9 @@
-@switch (currentScreen) {
+@switch (CurrentScreen) {
     @case ('menu'){
     <h1>Menu</h1>
     <mat-form-field>
       <mat-label>Difficulty</mat-label>
-      <mat-select [(value)]="targetHR" required>
+      <mat-select [(value)]="TargetHR" required>
         <mat-option value="110">Easy</mat-option>
         <mat-option value="120">Medium</mat-option>
         <mat-option value="130">Hard</mat-option>
@@ -11,7 +11,7 @@
     </mat-form-field>
     <mat-form-field id="timeSelect">
         <mat-label>Training Time</mat-label>
-        <mat-select [(value)]="totalTime" required>
+        <mat-select [(value)]="TotalTime" required>
         <mat-option value="10">10 Seconds (for testing)</mat-option> <!-- Time value is in seconds -->
         <mat-option value="90">90 Seconds (for testing)</mat-option>
         <mat-option value="600">10 Minutes</mat-option>
@@ -21,8 +21,8 @@
       </mat-select>
     </mat-form-field>
     <div style="display: flex; align-items: center; gap: 20px;">
-        <p style="width: 212px">Target Heart Rate: {{ targetHR }} BPM</p>
-        <p style="width: 212px">Training Time: {{ Math.floor(totalTime / 60) }} Minutes</p>
+        <p style="width: 212px">Target Heart Rate: {{ TargetHR }} BPM</p>
+        <p style="width: 212px">Training Time: {{ Math.floor(TotalTime / 60) }} Minutes</p>
     </div>
     <p>Target Score: {{ CalculateTargetScore() }}</p>
     <button mat-raised-button (click)="StartConnecting()">Connect</button>
@@ -31,41 +31,41 @@
         <h1>Game</h1>
         <div id="gameLayout">
             <div>                    
-                @if (newScore > 0) {
-                    <h2 id="scoreHeader">Score: {{ score }} <span style="color: orange;"> + {{ newScore }}</span> / {{ targetScore }}</h2>
+                @if (NewScore > 0) {
+                    <h2 id="scoreHeader">Score: {{ Score }} <span style="color: orange;"> + {{ NewScore }}</span> / {{ TargetScore }}</h2>
                 } @else {
-                    <h2 id="scoreHeader">Score: {{ score }} / {{ targetScore }}</h2>
+                    <h2 id="scoreHeader">Score: {{ Score }} / {{ TargetScore }}</h2>
                 }
                 <div class="meter">
-                    @if (score >= targetScore) {
+                    @if (Score >= TargetScore) {
                         <span style="width: 100%"></span>
                     } @else {
-                        <span style="width: {{ (score / targetScore) * 100 }}%"></span>
+                        <span style="width: {{ (Score / TargetScore) * 100 }}%"></span>
                     }
                 </div>
                 <div class="meter red">
-                    <span style="width: {{ 100 - ((timeRemaining / totalTime) * 100) }}%"></span>
+                    <span style="width: {{ 100 - ((TimeRemaining / TotalTime) * 100) }}%"></span>
                 </div>
-                @if(timeRemaining <= 60) {
-                    <h2>Time Remaining: {{ timeRemaining }} seconds</h2>
+                @if(TimeRemaining <= 60) {
+                    <h2>Time Remaining: {{ TimeRemaining }} seconds</h2>
                 } @else {
-                    <h2>Time Remaining: {{ Math.floor(timeRemaining / 60) }} Minutes {{ timeRemaining % 60 }} Seconds</h2>
+                    <h2>Time Remaining: {{ Math.floor(TimeRemaining / 60) }} Minutes {{ TimeRemaining % 60 }} Seconds</h2>
                 }
-                <h2>@if (multiplier > 1){Multiplier: {{ multiplier }} | Remaining: {{ bonusTime }}} </h2>
-                @if(curBpm < 100) {
-                    <h3 class="vitals" style="color: red;">HR: {{ curBpm }} BPM</h3>
-                } @else if (curBpm < targetHR) {
-                    <h3 class="vitals">HR: {{ curBpm }} BPM</h3>
+                <h2>@if (Multiplier > 1){Multiplier: {{ Multiplier }} | Remaining: {{ BonusTime }}} </h2>
+                @if(CurBpm < 100) {
+                    <h3 class="vitals" style="color: red;">HR: {{ CurBpm }} BPM</h3>
+                } @else if (CurBpm < TargetHR) {
+                    <h3 class="vitals">HR: {{ CurBpm }} BPM</h3>
                 } @else {
-                    <h3 class="vitals" style="color: green;">HR: {{ curBpm }} BPM</h3>
+                    <h3 class="vitals" style="color: green;">HR: {{ CurBpm }} BPM</h3>
                 }
-                <h3 class="vitals">SpO2: {{ curspo2 }} %</h3>
+                <h3 class="vitals">SpO2: {{ CurSpo2 }} %</h3>
             </div>
             <div id="missionDiv">
                 <!--This implementation forces us to have both missions (see the ts comment)-->
                 <div class="missionBox">
                     <h2>Complete the Session without Pausing</h2>
-                    @if(noPauseMission?.IsCompleted) {
+                    @if(NoPauseMission?.IsCompleted) {
                         <mat-progress-bar mode="buffer"></mat-progress-bar>
                         <h3> </h3>
                     } @else {
@@ -74,25 +74,25 @@
                     }
                 </div>
                 <div class="missionBox">
-                    <h2>Stay above {{ comboMission?.ComboTarget }} BPM for {{ comboMission?.ComboTime }} seconds</h2>
-                    @if (comboMission?.IsCompleted) {
+                    <h2>Stay above {{ ComboMission?.ComboTarget }} BPM for {{ ComboMission?.ComboTime }} seconds</h2>
+                    @if (ComboMission?.IsCompleted) {
                         <mat-progress-bar mode="determinate" class="mat-progress-bar-green"></mat-progress-bar>
                         <h3 style="color: green;">Mission Completed</h3>
                     } @else {
-                        <mat-progress-bar mode="determinate" [value]="(comboMission?.ComboCounter! / comboMission?.ComboTime! * 100)"></mat-progress-bar>
+                        <mat-progress-bar mode="determinate" [value]="(ComboMission?.ComboCounter! / ComboMission?.ComboTime! * 100)"></mat-progress-bar>
                         <h3> </h3>
                     }
                 </div>
             </div>
         </div>
-        @if (timeSinceLastUpdate > 3) {
-          <h2 style="color: red">Warning: No updates from Pipo in the last {{ timeSinceLastUpdate }} seconds!</h2>
+        @if (TimeSinceLastUpdate > 3) {
+          <h2 style="color: red">Warning: No updates from Pipo in the last {{ TimeSinceLastUpdate }} seconds!</h2>
         }
 
         <button mat-raised-button (click)="PauseGame()">Pause</button>
     }
     @case ('connecting'){
-        @if (gameRunning) {
+        @if (GameRunning) {
             <h1>Connection to Pipo Lost</h1>
         } @else {
             <h1>Connecting</h1>
@@ -101,7 +101,7 @@
         <p>Pipo {{ MqttClientService.PipoConnected ? 'Connected' : 'Disconnected' }}</p>
 
         <button mat-raised-button (click)="PingPico()" [disabled]="MqttClientService.MqttConnected && MqttClientService.PipoConnected || !MqttClientService.MqttConnected">Retry Connection</button>
-        @if (gameRunning) {
+        @if (GameRunning) {
             <button mat-raised-button [disabled]="!MqttClientService.MqttConnected || !MqttClientService.PipoConnected" (click)="ResumeGame()">Resume Game</button>
         } @else {
             <button mat-raised-button [disabled]="!MqttClientService.MqttConnected || !MqttClientService.PipoConnected" (click)="StartGame()">Start Game</button>
@@ -110,23 +110,25 @@
     }
     @case ('pause'){
         <h1>Game Paused</h1>
-        <p>Score: {{ score }}</p>
-        <p>Time Remaining: {{ timeRemaining }} seconds</p>
-        <p>HR: {{ curBpm }} BPM</p>
-        <p>SpO2: {{ curspo2 }} %</p>
+        <p>Score: {{ Score }}</p>
+        <p>Time Remaining: {{ TimeRemaining }} seconds</p>
+        <p>HR: {{ CurBpm }} BPM</p>
+        <p>SpO2: {{ CurSpo2 }} %</p>
         <button mat-raised-button (click)="ResumeGame()">Resume Game</button>
-        <button mat-raised-button (click)="endGame()">Save and Quit</button>
+        <button mat-raised-button (click)="EndGame()">Save and Quit</button>
         <button mat-raised-button (click)="QuitToMenu()">Quit</button>
     }
     @case ('gameOver') {
-        @if(didWin) {
+        @if(DidWin) {
             <h1>Congratulations! You won! 🎉</h1>
         } @else {
             <h1>You lost!</h1>
         }
-        <h2>Final Score: {{ score }}</h2>
-        <h1>Average Heart Rate: {{ Math.round(vitalsStore.GetAvgBpm()) }} BPM</h1>
-        <h1>Average SpO2: {{ Math.round(vitalsStore.GetAvgSpo2() * 10) / 10  }} %</h1>
+        <p>HR: {{ CurBpm }} BPM</p>
+        <p>SpO2: {{ CurSpo2 }} %</p>
+        <h2>Final Score: {{ Score }}</h2>
+        <h1>Average Heart Rate: {{ Math.round(VitalsStore.GetAvgBpm()) }} BPM</h1>
+        <h1>Average SpO2: {{ Math.round(VitalsStore.GetAvgSpo2() * 10) / 10  }} %</h1>
         <button mat-raised-button (click)="SaveAndReturnToMenu()">Return to Menu</button>
     }
 }

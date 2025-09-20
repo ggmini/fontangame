@@ -33,53 +33,107 @@ export enum Screen {
 })
 export class GameViewComponent {
 
-  currentScreen: Screen = Screen.Menu;
-  MqttClientService: MqttClientService;
-  storage: StorageService = inject(StorageService);
+  private currentScreen: Screen = Screen.Menu;
+  public get CurrentScreen(): Screen {
+    return this.currentScreen;
+  }
+  public readonly MqttClientService: MqttClientService;
+  private storage: StorageService = inject(StorageService);
+  public readonly Math = Math; //Making Math available in the html
 
   // #region Displayed Variables
-  score = 0;
-  newScore = 0; //Score achieved in the last second, used for visualising score changes
-  timeRemaining = 0;
-  stopwatch = 0; // Time elapsed since the start of the game
-  curBpm = 0; // current bpm
-  curspo2 = 0; // current spo2
-  bonusTime = 0; // Remaining bonus time for random events
-  multiplier = 1; // Multiplier for score calculation
-  timeSinceLastBonus = 0; // Time since the last bonus was activated
+  private score = 0;
+  public get Score(): number {
+    return this.score;
+  }
+  private newScore = 0; //Score achieved in the last second, used for visualising score changes
+  public get NewScore(): number {
+    return this.newScore;
+  }
+  private timeRemaining = 0;
+  public get TimeRemaining(): number {
+    return this.timeRemaining;
+  }
+
+  private stopwatch = 0; // Time elapsed since the start of the game
+  public get Stopwatch(): number {
+    return this.stopwatch;
+  }
+
+  private curBpm = 0; // current bpm
+  public get CurBpm(): number {
+    return this.curBpm;
+  }
+
+  private curspo2 = 0; // current spo2
+  public get CurSpo2(): number {
+    return this.curspo2;
+  }
+
+  private bonusTime = 0; // Remaining bonus time for random events
+  public get BonusTime(): number {
+    return this.bonusTime;
+  }
+
+  private multiplier = 1; // Multiplier for score calculation
+  public get Multiplier(): number {
+    return this.multiplier;
+  }
+
+  private timeSinceLastBonus = 0; // Time since the last bonus was activated
+  public get TimeSinceLastBonus(): number {
+    return this.timeSinceLastBonus;
+  }
   // #endregion
 
   // #region Stored Variables
-  targetHR = 120;
-  targetScore = 100;
-  totalTime = 10;
-  vitalsStore: VitalsList = new VitalsList();
-  didWin = false;
+  public TargetHR = 120;
+  private targetScore = 100;
+  public get TargetScore(): number {
+    return this.targetScore;
+  }
+  public TotalTime = 10;
+  private vitalsStore: VitalsList = new VitalsList();
+  public get VitalsStore(): VitalsList {
+    return this.vitalsStore;
+  }
+  private didWin = false;
+  public get DidWin(): boolean {
+    return this.didWin;
+  }
   // #endregion
 
   // #region Other Variables
-  gameRunning = false;
+  private gameRunning = false;
+  public get GameRunning(): boolean {
+    return this.gameRunning;
+  }
+  private gamePaused = false;
   public get GamePaused(): boolean {
     return this.gamePaused;
   }
-  private gamePaused = false;
   private wasPausedDuringLastTick = false; //we'll track this its possible to pause and unpause the game before the tick function is called again and the mission would not register the pause
   public get WasPausedDuringLastTick(): boolean {
     return this.wasPausedDuringLastTick;
   }
-  bonusActive = false; // Flag to indicate if a bonus is active
-  timeSinceLastUpdate = 0; //used to track lack of updates from pipo in order to warn if the device has come off
+  private bonusActive = false; // Flag to indicate if a bonus is active
+  private timeSinceLastUpdate = 0; //used to track lack of updates from pipo in order to warn if the device has come off
   public get TimeSinceLastUpdate(): number {
     return this.timeSinceLastUpdate;
   }
 
-  Math = Math; //Making Math available in the html
   // #endregion
 
   // #region Mission Variables
-  activeMissions: Mission[] = [];
-  comboMission: ComboMission | null = null;     //I would rather have a list of mission interfaces here, but I cannot figure out how to display mission specific data in the html 
-  noPauseMission: NoPauseMission | null = null; //neatly (i.e. without a bunch of extra properties on the mission interface, which many implementations wouldn't need)
+  private activeMissions: Mission[] = [];
+  private comboMission: ComboMission | null = null;     //I would rather have a list of mission interfaces here, but I cannot figure out how to display mission specific data in the html
+  private noPauseMission: NoPauseMission | null = null; //neatly (i.e. without a bunch of extra properties on the mission interface, which many implementations wouldn't need)
+  public get ComboMission(): ComboMission | null {
+    return this.comboMission;
+  }
+  public get NoPauseMission(): NoPauseMission | null {
+    return this.noPauseMission;
+  }
   // #endregion
 
 
@@ -90,32 +144,36 @@ export class GameViewComponent {
   /**
    * Subscribes to MQTT data streams; Call when starting the game
    */
-  subscribeToData() {
-    this.MqttClientService.bpmSubscription.subscribe((bpm) => {
+  private subscribeToData() {
+    this.MqttClientService.BpmSubscription.subscribe((bpm) => {
       this.curBpm = bpm;
       this.timeSinceLastUpdate = 0;
     });
-    this.MqttClientService.spo2Subscription.subscribe((spo2) => {
+    this.MqttClientService.Spo2Subscription.subscribe((spo2) => {
       this.curspo2 = spo2;
     });
   }
 
-  CalculateTargetScore(): number {
-    return (this.targetHR - 100) * this.totalTime; //Simple target score calculation based on target HR and total time
+  /**
+   * Calculates the target score based on selected Difficulty settings
+   * @returns Calculated target score
+   */
+  public CalculateTargetScore(): number {
+    return (this.TargetHR - 100) * this.TotalTime; //Simple target score calculation based on target HR and total time
   }
 
   /**
    * Creates a new game data object from the current input values and saves it to local storage
    */
-  SaveResults() {
+  private saveResults() {
     const date = new Date();
     const data = GameData.CreateFromInput(
       this.vitalsStore,
       this.didWin,
       this.score,
-      this.totalTime - this.timeRemaining,
+      this.TotalTime - this.timeRemaining,
       date,
-      this.targetScore,
+      this.TargetScore,
       `gameData_${date.toISOString()}`
     );
     console.log(data.Serialize());
@@ -127,10 +185,10 @@ export class GameViewComponent {
   /**
    * Timer tick function that updates the game state every second
    */
-  timerTick() {
+  private timerTick() {
     this.stopwatch++;
     this.processData();
-    this.CheckMissions();
+    this.checkMissions();
     this.wasPausedDuringLastTick = this.gamePaused; //Update the pause tracking variable after checking missions
     if (!this.gamePaused) { //if the game is paused only vital data will be processed (without scoring but that is handled in processData)
       this.timeRemaining--;
@@ -147,7 +205,7 @@ export class GameViewComponent {
         } else this.bonusTime--;
       }
       if (this.timeRemaining === 0) {
-        this.endGame();
+        this.EndGame();
         return; //return will prevent the timer from being renewed
       }
     }
@@ -157,7 +215,7 @@ export class GameViewComponent {
   /**
    * Process current vitals data and saves it to the Stores, adds new points to score
    */
-  processData() {
+  private processData() {
     this.score += this.newScore; //Add the new score to the total score
     this.newScore = 0; //Reset new score
     if(!this.gamePaused) { //if the game isn't paused add to the score
@@ -178,7 +236,7 @@ export class GameViewComponent {
   /**
    * Checks for random events
    */
-  checkForRandomEvent() {
+  private checkForRandomEvent() {
     if(this.timeSinceLastBonus < 30) return; //Make sure at least 30s have passed since the last bonus
     let chance = 0.1;
     const i = Math.floor(this.timeSinceLastBonus / 30);
@@ -191,20 +249,10 @@ export class GameViewComponent {
   /**
    * Generates a random event that can affect the game state (currently 10s 2x multiplier as a placeholder)
    */
-  generateRandomEvent() {
+  private generateRandomEvent() {
     this.multiplier = 2;
     this.bonusTime = Math.floor(Math.random() * 60 + 30); //Random bonus time between 30s and 90s
     this.bonusActive = true;
-  }
-
-  /**
-   * Move to the End Screen and check if the player achieved the target score
-   */
-  endGame() {
-    this.currentScreen = Screen.GameOver;
-    this.gameRunning = false;
-    if (this.score >= this.targetScore)
-      this.didWin = true;
   }
 
   // #endregion
@@ -215,7 +263,7 @@ export class GameViewComponent {
    * Generates the Missions to be used in the current Game; The selection of missions should be randomized, but because we are storing the missions in their
    * individual variables, both missions are generated every time
    */
-  GenerateMissions() {
+  private generateMissions() {
     this.comboMission = new ComboMission(120, 5, this);
     this.noPauseMission = new NoPauseMission(this);
     this.activeMissions.push(this.comboMission, this.noPauseMission);
@@ -224,7 +272,7 @@ export class GameViewComponent {
   /**
    * Checks all active missions for completion
    */
-  CheckMissions() {
+  private checkMissions() {
     this.activeMissions.forEach(mission => mission.checkCompletion());
   }
 
@@ -232,11 +280,11 @@ export class GameViewComponent {
    * Removes a mission from the active missions list in order to save performance
    * @param mission Mission to be removed from the active missions list
    */
-  RemoveActiveMission(mission: Mission) {
+  public RemoveActiveMission(mission: Mission) {
     this.activeMissions = this.activeMissions.filter(m => m !== mission);
   }
 
-  CheckMissionCompletion(mission: Mission) {
+  private checkMissionCompletion(mission: Mission) {
     if (mission.IsCompleted) {
       this.score += mission.Reward;
     }
@@ -249,31 +297,31 @@ export class GameViewComponent {
   /**
    * Starts Connecting to MQTT and the Pipo
    */
-  StartConnecting() {
+  public StartConnecting() {
     this.currentScreen = Screen.Connecting;
-    this.MqttClientService.connect();
+    this.MqttClientService.Connect();
   }
 
-  PingPico() {
+  public PingPico() {
     this.MqttClientService.PingPico();
   }
 
   /**
    * Starts the game
    */
-  StartGame() {
+  public StartGame() {
     this.targetScore = this.CalculateTargetScore();
-    this.GenerateMissions();
+    this.generateMissions();
     this.gameRunning = true;
     this.gamePaused = false;
-    this.MqttClientService.pipoDidDisconnect.subscribe(() => {
+    this.MqttClientService.PipoDidDisconnect.subscribe(() => {
       console.log('Pipo disconnected, stopping game');
       this.gamePaused = true;
       this.currentScreen = Screen.Connecting;
     });
-    this.MqttClientService.subscribeToData();
+    this.MqttClientService.SubscribeToData();
     this.subscribeToData();
-    this.timeRemaining = this.totalTime;
+    this.timeRemaining = this.TotalTime;
     this.stopwatch = 0;
     this.timeSinceLastUpdate = 0;
     this.timeSinceLastBonus = 30; //Set to 30 so that a bonus can be generated right away
@@ -284,7 +332,7 @@ export class GameViewComponent {
   /**
    * Pauses the game
    */
-  PauseGame() {
+  public PauseGame() {
     this.currentScreen = Screen.Pause;
     this.gamePaused = true;
     this.wasPausedDuringLastTick = true;
@@ -293,7 +341,7 @@ export class GameViewComponent {
   /**
    * Resumes the game
    */
-  ResumeGame() {
+  public ResumeGame() {
     this.currentScreen = Screen.Game;
     this.gamePaused = false;
   }
@@ -301,29 +349,39 @@ export class GameViewComponent {
   /**
    * Goes from the connecting Screen back to the Menu
    */
-  BackFromConnecting() {
+  public BackFromConnecting() {
     this.currentScreen = Screen.Menu;
+  }
+
+  /**
+   * Move to the End Screen and check if the player achieved the target score
+   */
+  public EndGame() {
+    this.currentScreen = Screen.GameOver;
+    this.gameRunning = false;
+    if (this.score >= this.targetScore)
+      this.didWin = true;
   }
 
   /**
    * Returns to the main menu and saves the session data (to be used after game is finished)
    */
-  SaveAndReturnToMenu() {
-    this.SaveResults();
+  public SaveAndReturnToMenu() {
+    this.saveResults();
     window.location.reload(); //Reloading the window will send us back to the Menu Screen and will reset all the variables for us
   }
 
-  SaveAndQuitToMenu() {
+  public SaveAndQuitToMenu() {
     if (this.score >= this.targetScore)
       this.didWin = true;
-    this.SaveResults();
+    this.saveResults();
     window.location.reload();
   }
 
   /**
    * Returns to main menu without saving the data(to be used when quitting from pause menu)
    */
-  QuitToMenu() {
+  public QuitToMenu() {
     window.location.reload();
   }
 

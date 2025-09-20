@@ -5,6 +5,6 @@ import { DataViewerComponent } from './data-viewer/data-viewer.component';
 
 export const routes: Routes = [
   { path: 'mqtt-viewer', component: MqttViewerComponent },
-  { path: 'game-view', component: GameViewComponent },
+  { path: 'game', component: GameViewComponent },
   { path: 'data-viewer', component: DataViewerComponent }
 ];

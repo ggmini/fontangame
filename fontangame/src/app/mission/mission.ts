@@ -1,11 +1,12 @@
-import { GameViewComponent } from "../game-view/game-view.component";
-
+/** Interface for missions */
 export interface Mission {
-    
-    IsCompleted: boolean;
-    gameView: GameViewComponent;
+
+    /** Whether the mission is completed or not */
+    IsCompleted: boolean; 
+    /** The Point Reward for completing the mission */
     Reward: number;
 
+    /** Tick logic to check for mission completion */
     checkCompletion(): void;
 
 

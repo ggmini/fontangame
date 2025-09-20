@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { MqttClientService } from '../mqtt-client.service';
 
 /**
- * Component used to test MQTT Connectivity; Not to be used for final release
+ * Component used to test MQTT Connectivity; Not to be used for a final release
  */
 @Component({
   selector: 'app-mqtt-viewer',
@@ -14,25 +14,35 @@ import { MqttClientService } from '../mqtt-client.service';
 export class MqttViewerComponent {
 
   public mqttClientService = inject(MqttClientService);
+  
+  public PipoState = this.mqttClientService.PipoConnected ? 'connected' : 'disconnected';
+  public StateLabel = this.mqttClientService.MqttConnected ? 'connected' : 'disconnected';
+
   constructor () {
     console.log('MqttViewerComponent initialized');
   }
 
-  connectButton() {
-    this.mqttClientService.connect();
-    this.refresh();
+  /**
+   * Connects to the MQTT broker and refreshes the state labels
+   */
+  public ConnectButton() {
+    this.mqttClientService.Connect();
+    this.Refresh();
   }
 
-  disconnectButton() {
-    this.mqttClientService.disconnect();
-    this.refresh();
+  /**
+   * Disconnects from the MQTT broker and refreshes the state labels
+   */
+  public DisconnectButton() {
+    this.mqttClientService.Disconnect();
+    this.Refresh();
   }
 
-  pipoState = this.mqttClientService.PipoConnected ? 'connected' : 'disconnected';
-  stateLabel = this.mqttClientService.MqttConnected ? 'connected' : 'disconnected';
-
-  refresh () {
-    this.stateLabel = this.mqttClientService.MqttConnected ? 'connected' : 'disconnected';
-    this.pipoState = this.mqttClientService.PipoConnected ? 'connected' : 'disconnected';
+  /**
+   * Refreshes the connection state labels
+   */
+  public Refresh() {
+    this.StateLabel = this.mqttClientService.MqttConnected ? 'connected' : 'disconnected';
+    this.PipoState = this.mqttClientService.PipoConnected ? 'connected' : 'disconnected';
   }
 }

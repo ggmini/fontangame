@@ -1,11 +1,7 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * -->
+<!-- * * * * The content below is the angular default screen * * * -->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * Delete the template below * * * * * * * * * -->
-<!-- * * * * * * * to get started with your project! * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+
 
 <style>
   :host {
@@ -230,18 +226,15 @@
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
   </div>
-  <button mat-raised-button (click)="mqtt()" id="bannerButton">MQTT</button>
-  <button mat-raised-button (click)="game()" id="bannerButton">Game</button>
-  <button mat-raised-button (click)="data()" id="bannerButton">Data</button>
-</main>
 
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content above * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * End of Placeholder  * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+  <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+  <!-- * * * * * * * * * * End of Default Code * * * * * * * * * * * * -->
+  <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+
+  <button mat-raised-button (click)="GoToMqttViewer()" id="bannerButton">MQTT</button>
+  <button mat-raised-button (click)="GoToGame()" id="bannerButton">Game</button>
+  <button mat-raised-button (click)="GoToDataViewer()" id="bannerButton">Data</button>
+</main>
 
 
 <router-outlet />

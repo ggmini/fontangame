@@ -32,6 +32,15 @@ module.exports = tseslint.config(
       ],
       semi: ["error", "always"],
       camelcase: ["warn", { properties: "always" }],
+      "@typescript-eslint/explicit-member-accessibility": [
+        "error",
+        {
+          accessibility: "explicit",
+          overrides: {
+            constructors: "no-public"
+          }
+        }
+      ],
     },
   },
   {

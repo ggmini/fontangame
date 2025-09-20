@@ -4,19 +4,19 @@ import { GameViewComponent } from "../game-view/game-view.component";
 export class NoPauseMission implements Mission {
 
     private isCompleted = true;
+    /** Whether the mission is completed or failed */
     public get IsCompleted(): boolean {
         return this.isCompleted;
     }
 
-    gameView: GameViewComponent;
-    readonly Reward = 200;
+    /** The Point Reward for completing the mission */
+    public readonly Reward = 200;
 
-    constructor(gameView: GameViewComponent) {
-        this.gameView = gameView;
-    }
+    constructor(private gameView: GameViewComponent) { }
 
-    checkCompletion() {
-        if (this.gameView.GamePaused || this.gameView.WasPausedDuringLastTick) { //if the game is paused, the mission will be markes as failed with no way to recover
+    /** Tick logic to check for mission completion */
+    public checkCompletion() {
+        if (this.gameView.GamePaused || this.gameView.WasPausedDuringLastTick) { //If the game is paused, the mission will be markes as not completed and removed from the tick cycle
             this.isCompleted = false;
             this.gameView.RemoveActiveMission(this);
         }

@@ -10,17 +10,17 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'fontangame';
+  public title = 'fontangame';
 
-  mqtt() {
+  public GoToMqttViewer() {
     window.location.href = '/mqtt-viewer';
   }
 
-  game() {
-    window.location.href = '/game-view';
+  public GoToGame() {
+    window.location.href = '/game';
   }
 
-  data() {
+  public GoToDataViewer() {
     window.location.href = '/data-viewer';
   }
 }

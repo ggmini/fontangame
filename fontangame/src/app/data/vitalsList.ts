@@ -1,8 +1,6 @@
 import { VitalsUnit } from "./vitalsUnit";
 
-/**
- * Lists all vitals data snapshots for an exercise
- */
+/** Lists all vitals data snapshots for an exercise */
 export class VitalsList {
 
     private list: VitalsUnit[] = []; //Stores all vitals data snapshots

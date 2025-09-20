@@ -19,17 +19,21 @@ import { MatProgressBar } from "@angular/material/progress-bar";
 })
 export class DataViewerComponent {
 
-  storage: StorageService = inject(StorageService);
+  private storage: StorageService = inject(StorageService);
+  public  Math = Math;
 
-  gameDataList: GameData[] = [];
+  private gameDataList: GameData[] = [];
+  /** List of all game data loaded from storage */
+  public get GameDataList(): GameData[] {
+    return this.gameDataList;
+  }
+  private charts: Chart[] = [];
 
-  selectedData: GameData | null = null;
-
-  Math = Math;
-
-  charts: Chart[] = [];
-
-  weeklyProgress = 0;
+  private weeklyProgress = 0;
+  /** Number of sessions played in the current week */
+  public get WeeklyProgress(): number {
+    return this.weeklyProgress;
+  }
 
   constructor() {
     this.PopulateTable();
@@ -38,21 +42,37 @@ export class DataViewerComponent {
   /**
    * Populates the table with all game data that can be found in local storage
    */
-  PopulateTable() {
+  public PopulateTable() {
     const dataNames = this.storage.GetAllItemNames();
-
+    
     this.gameDataList = dataNames.map(name => {
       const json = this.storage.ReadItem(name);
       return json ? GameData.CreateFromJson(json) : null;
     }).filter((data): data is GameData => data !== null);
 
-    this.gameDataList.sort((a, b) => new Date(b.Date).getTime() - new Date(a.Date).getTime()); // Sort by most recent date first
-    this.GetWeeklyProgress();
-    timer(10).subscribe(() => this.ConstructCharts()); //this is delayed to make sure the charts are constructed after the DOM is ready (the canvases should exist)
+    this.gameDataList.sort((a, b) => new Date(b.Date).getTime() - new Date(a.Date).getTime()); //Sort by most recent date first
+    this.getWeeklyProgress();
+    timer(10).subscribe(() => this.constructCharts()); //This is delayed to make sure the charts are constructed after the DOM is ready (the canvases should exist)
   }
 
-  ConstructCharts(){
-    this.destroyCharts();
+  private getWeeklyProgress() {
+    const now = new Date();
+    const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay(); // Treat Sunday as 7
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - (dayOfWeek - 1)); // Monday as start of week
+    startOfWeek.setHours(0, 0, 0, 0);
+    const recentData = this.gameDataList.filter(data => {
+      const dataDate = new Date(data.Date);
+      return dataDate >= startOfWeek && dataDate <= now;
+    });
+    this.weeklyProgress = recentData.length;
+  }
+
+  // #region Chart Construction
+
+  /** Builds the BPM & SPO2 Charts */
+  private constructCharts(){
+    this.destroyCharts(); //Destroy existing charts to prevent Canvas already in use errors
     //Construct the Charts
     for(let i = 0; i < this.gameDataList.length; i++) {
       const data = this.gameDataList[i];
@@ -77,6 +97,7 @@ export class DataViewerComponent {
         }
       }));
       
+      //now for spo2
       const spo2Ctx = document.getElementById(`spo2Chart${i}`) as HTMLCanvasElement;
       const spo2Data = vitalsUnits.map(unit => unit.Spo2) || [];
       const spo2PointColor = vitalsUnits.map(unit => unit?.Paused ? '#000055ff' : '#089afcff'); // Dark Blue if game was paused for that tick, regular blue otherwise
@@ -98,31 +119,20 @@ export class DataViewerComponent {
     }
   }
 
-  GetWeeklyProgress() {
-    const now = new Date();
-    const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay(); // Treat Sunday as 7
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - (dayOfWeek - 1)); // Monday as start of week
-    startOfWeek.setHours(0, 0, 0, 0);
-    const recentData = this.gameDataList.filter(data => {
-      const dataDate = new Date(data.Date);
-      return dataDate >= startOfWeek && dataDate <= now;
-    });
-    this.weeklyProgress = recentData.length;
-  }
-
-  /**
-   * Destroys all existing charts to Canvas already in use errors
-   */
-  destroyCharts() {
+  /** Destroys all existing charts to prevent Canvas already in use errors */
+  private destroyCharts() {
     this.charts.forEach(chart => chart.destroy());
     this.charts = [];
   }
 
+  // #endregion
+
+  // #region Data Deletion 
+
   /**
    * Clears all saved game data
    */
-  clearSaves() {
+  public ClearSaves() {
     if (confirm('Are you sure you want to clear all saved data? This action cannot be undone.')) {
       this.storage.ClearStorage();
       this.PopulateTable();
@@ -133,28 +143,22 @@ export class DataViewerComponent {
    * Deletes a specific game data entry
    * @param data The game data to delete
    */
-  deleteData(data: GameData) {
+  public DeleteData(data: GameData) {
     if (confirm('Are you sure you want to delete this data? This action cannot be undone.')) {
       this.storage.DeleteItem(data.FileName);
       this.PopulateTable();
     }
   }
 
-  /**
-   * Creates test data for the application; not for final use
-   */
-  createTestData() {
-    const data = GameData.CreateTestData();
-    const json = data.Serialize();
-    this.storage.SaveItem(data.FileName, json);
-    this.PopulateTable();
-  }
+  // #endregion
+
+  // #region Import/Export
 
   /**
    * Downloads the selected game data as a JSON file
    * @param data Data selected for export
    */
-  exportData(data: GameData) {
+  public ExportData(data: GameData) {
     const blob = new Blob([data.Serialize()], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -164,12 +168,12 @@ export class DataViewerComponent {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }
+  }  
 
   /**
    * Opens a file dialog to import game data from a JSON file
    */
-  importData() {
+  public ImportData() {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json'; //gamedata is in json format
@@ -191,8 +195,19 @@ export class DataViewerComponent {
       // Clean up the input element after use
       document.body.removeChild(input);
     };
-
     input.click();
+  }
+
+  // #endregion
+
+  /**
+   * Creates test data for the application; not for final use
+   */
+  public CreateTestData() {
+    const data = GameData.CreateTestData();
+    const json = data.Serialize();
+    this.storage.SaveItem(data.FileName, json);
+    this.PopulateTable();
   }
 
 }

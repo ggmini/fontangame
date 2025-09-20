@@ -13,27 +13,35 @@ export class GameData {
         return this.vitalsList;
     }
 
-    //General game data
+    // #region General Game Data
+
     private didWin: boolean;
+    /** Whether the player won the game */
     public get DidWin(): boolean {
         return this.didWin;
     }
     private finalScore: number;
+    /** The final score of the game */
     public get FinalScore(): number {
         return this.finalScore;
     }
     private targetScore: number;
+    /** The target score for that game */
     public get TargetScore(): number {
         return this.targetScore;
     }
     private time: number;
+    /** The time spent in that session (not including pause time), in seconds */
     public get Time(): number {
         return this.time;
     }
     private date: Date;
+    /** The date and time when the game was played (specifically when it was saved) */
     public get Date(): Date {
         return this.date;
     }
+
+    // #endregion
 
     public Serialize(): string {
         return JSON.stringify(this);
@@ -56,7 +64,7 @@ export class GameData {
      */
     public static CreateFromJson(json: string): GameData {
         const data = JSON.parse(json);
-        //I hate the json implementation in Angular/TypeScript...this stuff is necessary so these things work like the proper objects they are
+        //Great JSON implementation in Angular/TypeScript...this stuff is necessary so these things work like the proper objects they are (if we don't do this they will be missing all their functions)
         const vitalsJson = Object.assign(new VitalsList(), data.vitalsList);
         const vitalsData = new VitalsList();
         vitalsJson.GetAll().forEach((element: VitalsUnit) => {
@@ -76,7 +84,7 @@ export class GameData {
     } 
 
     /**
-     * Creates a new GameData object from the input parameters
+     * Creates a new GameData object from the input parameters; to be used when saving the game
      * @param bpmList The list of BPM data
      * @param spo2List The list of SpO2 data
      * @param didWin Whether the player won the game
