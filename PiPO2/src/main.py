@@ -23,11 +23,6 @@ def calculate_spO2(red_max, red_min, ir_max, ir_min):
     ir_AC = ir_max - ir_min
     
     R_val = (red_AC / red_DC) / (ir_AC / ir_DC)
-    #print ("R:", R_val) #TODO: remove console logs later
-    spO2a = R_val * 49.48
-    spO2b = 116.6 - (34.5 * R_val)
-    spO2c = 110 - (25 * R_val)
-    #print(spO2a, spO2b, spO2c) #TODO: remove console logs later
     spO2 = (1.5958422 * (R_val * R_val)) + (-34.6596622 * R_val) + 112.6898759
     return spO2
 
@@ -127,9 +122,6 @@ def main():
                 red_reading = sensor.pop_red_from_storage()
                 ir_reading = sensor.pop_ir_from_storage()
                 
-                #TODO: remove console logs later
-                #print("red reading", red_reading, "ir reading", ir_reading)
-                
                 #calc change in ir value between last 2 reads and add it to list and calc average of last 5
                 prev = curr
                 curr = ir_reading
@@ -149,7 +141,7 @@ def main():
                     
                     #print avg of last ten bpm, eliminate high and low vals
                     bpm = ((sum(bpmStor) - (max(bpmStor) + min(bpmStor))) / (len(bpmStor) - 2))
-                    print ("bpm", round(bpm)) #TODO: remove console logs later
+                    print ("bpm", round(bpm))
                     PR = bpm
                     lookpeak = False
                     
@@ -159,7 +151,7 @@ def main():
                     spO2Stor.append(calculate_spO2(redHigh, redLow, irHigh, irLow))
                     #average the array of stored spO2 vals but remove min and max (possible outliers)
                     spO2local = ((sum(spO2Stor) - (max(spO2Stor) + min(spO2Stor))) / (len(spO2Stor) - 2))
-                    print("SpO2", round(spO2local, 2), "%") #TODO: remove console logs later
+                    print("SpO2", round(spO2local, 2), "%")
                     
                     #reset vals for next beat
                     irHigh = 0

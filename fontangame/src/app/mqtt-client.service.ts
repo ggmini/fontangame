@@ -30,18 +30,14 @@ export class MqttClientService {
   }
   // #endregion
 
-  constructor() {
-    console.log('MqttClientService initialized');
-  }
+  constructor() { ; }
 
   /** Connects to the MQTT broker and sets up Pipo subscription */
   public Connect() {
-    console.log("mqtt.connect attempt");
     try {
       this.client.connect();
       this.client.onConnect.subscribe(() => {
         this.mqttConnected = true;
-        console.log('mqtt.connect success');
         this.client.unsafePublish('fontangame/fontangame', 'connected', { qos: 0, retain: false });
       });
     } catch (error) {
@@ -56,7 +52,6 @@ export class MqttClientService {
       this.client.disconnect();
       this.mqttConnected = false;
       this.pipoConnected = false; //if we disconnect from the broker, we are disconnected from the pico
-      console.log('mqtt.disconnect success');
     } catch (error) {
       console.error('mqtt.disconnect error:', error);
     }
@@ -65,14 +60,12 @@ export class MqttClientService {
   /** Subscribes to the Pipo connection status topic and handles incoming messages */
   private subscribeToPipo() {
     this.client.observe('fontangame/pipo2').subscribe((message) => {
-      console.log('Received message:', message.payload.toString());
       if(message.payload.toString() === 'connected'){
         this.pipoConnected = true;
         this.PipoDidConnect.emit();
       } else if(message.payload.toString() === 'disconnected') {
         this.pipoConnected = false;
         this.PipoDidDisconnect.emit();
-        console.log('Emitting pipoDidDisconnect event');
       }
     });
   }

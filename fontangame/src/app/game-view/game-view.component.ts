@@ -176,7 +176,6 @@ export class GameViewComponent {
       this.TargetScore,
       `gameData_${date.toISOString()}`
     );
-    console.log(data.Serialize());
     this.storage.SaveItem(data.FileName, data.Serialize());
   }
 
@@ -315,7 +314,6 @@ export class GameViewComponent {
     this.gameRunning = true;
     this.gamePaused = false;
     this.MqttClientService.PipoDidDisconnect.subscribe(() => {
-      console.log('Pipo disconnected, stopping game');
       this.gamePaused = true;
       this.currentScreen = Screen.Connecting;
     });
