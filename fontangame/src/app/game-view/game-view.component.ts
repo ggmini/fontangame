@@ -65,9 +65,9 @@ export class GameViewComponent {
     return this.curBpm;
   }
 
-  private curspo2 = 0; // current spo2
+  private curSpo2 = 0; // current spo2
   public get CurSpo2(): number {
-    return this.curspo2;
+    return this.curSpo2;
   }
 
   private bonusTime = 0; // Remaining bonus time for random events
@@ -150,7 +150,7 @@ export class GameViewComponent {
       this.timeSinceLastUpdate = 0;
     });
     this.MqttClientService.Spo2Subscription.subscribe((spo2) => {
-      this.curspo2 = spo2;
+      this.curSpo2 = spo2;
     });
   }
 
@@ -226,7 +226,7 @@ export class GameViewComponent {
       }
     }
     if (this.timeSinceLastUpdate < 3) {
-      this.vitalsStore.Add(new VitalsUnit(this.stopwatch, this.curBpm, this.curspo2, this.gamePaused));
+      this.vitalsStore.Add(new VitalsUnit(this.stopwatch, this.curBpm, this.curSpo2, this.gamePaused));
     } else { //If no updates, add null values to the sore
       this.vitalsStore.Add(new VitalsUnit(this.stopwatch, null, null, this.gamePaused));
     }
@@ -357,6 +357,8 @@ export class GameViewComponent {
   public EndGame() {
     this.currentScreen = Screen.GameOver;
     this.gameRunning = false;
+    this.checkMissionCompletion(this.noPauseMission!);
+    this.checkMissionCompletion(this.comboMission!);
     if (this.score >= this.targetScore)
       this.didWin = true;
   }
@@ -367,13 +369,6 @@ export class GameViewComponent {
   public SaveAndReturnToMenu() {
     this.saveResults();
     window.location.reload(); //Reloading the window will send us back to the Menu Screen and will reset all the variables for us
-  }
-
-  public SaveAndQuitToMenu() {
-    if (this.score >= this.targetScore)
-      this.didWin = true;
-    this.saveResults();
-    window.location.reload();
   }
 
   /**
