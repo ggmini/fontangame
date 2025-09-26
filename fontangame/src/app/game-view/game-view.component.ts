@@ -88,7 +88,7 @@ export class GameViewComponent {
 
   // #region Stored Variables
   public TargetHR = 120;
-  private targetScore = 100;
+  private targetScore = 200;
   public get TargetScore(): number {
     return this.targetScore;
   }
@@ -247,7 +247,7 @@ export class GameViewComponent {
   }
 
   /**
-   * Generates a random event that can affect the game state (currently 10s 2x multiplier as a placeholder)
+   * Generates a random event that can affect the game state (currently 30s-90s 2x multiplier)
    */
   private generateRandomEvent() {
     this.multiplier = 2;
