@@ -1,27 +1,21 @@
 # Fontangame
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.17.
+A gamified Sports Application meant to encourage young adults with Fontan Circulations to partake in high intensity (high pulse) sports.
 
-## Development server
+## Requirements
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- Compatible Version of NodeJS (22.17.1)
+- Compatible Version of Angular CLI (17.3.17)
+    - Install with `npm install -g @angular/cli`
+- A Pulseoximeter which sends it's data via MQTT.
 
-## Code scaffolding
+## How to Run
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- Make sure you have a compatible version of NodeJS and Angular CLI installed.  
+- Rename `credentials.ts.template` in the `src\app` to `credentials.ts` and enter your MQTT Broker Information.
+- Run `npm install`
+- Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+`ng serve -o` will run the the dev server and open your default browser.
 
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.17.  
+Developed with NodeJS version 22.17.1.
