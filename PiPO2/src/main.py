@@ -185,7 +185,7 @@ def main():
                     redHigh = red_reading
                 if (red_reading < redLow):
                     redLow = red_reading
-    except OSError:
+    except OSError: #assume a sensor error
         try:
             mqtt.publish(client, "fontangame/pipo2", "disconnected") #try to send disconnect message
             oled.fill(0)
@@ -193,10 +193,10 @@ def main():
             oled.text("Sensor Connection", 0, 20)
             oled.text("lost", 0, 40)
             oled.show()
-        except OSError: #im assuming this is a wifi/mqtt connection error
+        except OSError: #this is either a wifi/mqtt connection error or a screen error (if the error message is displayed the screen is obviously still working)
             oled.fill(0)
             oled.text(":(", 0, 20)
-            oled.text("OSError -104", 0, 40)
+            oled.text("OSError", 0, 40)
             oled.show()
         time.sleep(3)        
         sys.exit()
